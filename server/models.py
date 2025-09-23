@@ -30,7 +30,7 @@ class Matatu(db.Model, SerializerMixin):
     sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
 
     # relationships 
-    sacco = relationship("Sacco", back_populates="matatus")  # Plural
+    sacco = relationship("Sacco", back_populates="matatus") 
 
     # Many-to-many with Route
     routes = relationship("Route",
@@ -49,7 +49,7 @@ class Route(db.Model, SerializerMixin):
     sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
 
     # relationships 
-    sacco = relationship("Sacco", back_populates="routes")  # Plural
+    sacco = relationship("Sacco", back_populates="routes")  
 
     # Many-to-many with Matatu
     matatus = relationship("Matatu",
