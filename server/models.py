@@ -14,8 +14,8 @@ class Sacco(db.Model, SerializerMixin):
      matatu= relationship("Matatu", back_populates="sacco")
      route=relationship("Route", back_populates="sacco")
 
-# seriallizer rules
-serialize_rules=()
+# serialize rules
+serialize_rules=("-matatu.sacco, -route.sacco")
     
      
 
@@ -32,6 +32,9 @@ class Matatu(db.Model, SerializerMixin):
     # relationships
 
     sacco=relationship("Sacco", back_populates="matatu")
+
+    # serialize rules
+    serialize_rules=("-sacco.matatu")
     
 
 
@@ -49,6 +52,10 @@ class Route(db.Model, SerializerMixin):
 
     # relationships
     sacco = relationship("Sacco", back_populates="route")
+    # serialize rules
+    serialize_rules=("-sacco.route")
+
+
 
 
  
