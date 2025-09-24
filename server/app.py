@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response, jsonify, request
 from flask_restful import Resource, Api
 from models import db, Matatu, Matatu_route, Route, Sacco
 from flask_migrate import Migrate
@@ -62,7 +62,26 @@ class All_Routes_in_sacco(Resource):
 
 
 api.add_resource(All_Routes_in_sacco, "/saccos/<int:sacco_id>/routes")
-        
 
+# end point for adding a matatu
+class Adds_a_matatu_to_sacco(Resource):
+    def post(self, sacco_id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        data=request.get_json()
+
+        new_matatu= Matatu(
+            plate_number=data["plate_number"],
+            capacity=data["capacity"],
+            sacco_id=sacco.id
+        )
+        db.session.add(new_matatu)
+        db.session.commit()
+        return make_response({"msg":"matatu added succesfully"}, 201)
+
+
+api.add_resource(Adds_a_matatu_to_sacco, "/saccos/<int:sacco_id>/matatus/add")
+
+        
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True)
+
