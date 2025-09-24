@@ -38,7 +38,7 @@ class Matatu(db.Model, SerializerMixin):
                           back_populates="matatus")
 
     # serialize rules 
-    serialize_rules = ("-sacco.matatus", "-routes.matatus", "-matatu_routes")
+    serialize_rules = ("-sacco.matatus", "-routes.matatus", "-matatu_routes.matatus")
 
 
 class Route(db.Model, SerializerMixin):
