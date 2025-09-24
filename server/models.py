@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey
+# from sqlalchemy import ForeignKey
 
 db = SQLAlchemy()
 
@@ -16,7 +16,21 @@ class Sacco(db.Model, SerializerMixin):
     routes = relationship("Route", back_populates="sacco")
 
     # Break circular serialization
-    serialize_rules = ("-matatus.sacco", "-routes.sacco")
+    serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus", "-routes")
+
+
+class Matatu_route(db.Model, SerializerMixin):
+    __tablename__ = "matatu_route"
+    id = db.Column(db.Integer, primary_key=True)
+    matatu_id = db.Column(db.Integer, db.ForeignKey("matatus.id"))
+    route_id = db.Column(db.Integer, db.ForeignKey("routes.id"))
+    fare = db.Column(db.Integer, nullable=False)
+
+    #  back_populates
+    matatu = relationship("Matatu", back_populates="matatu_routes")
+    route = relationship("Route", back_populates="matatu_routes")
+
+    serialize_rules = ("-matatu.matatu_routes", "-route.matatu_routes", "-matatu.sacco", "-route.sacco")
 
 
 class Matatu(db.Model, SerializerMixin):
@@ -27,11 +41,9 @@ class Matatu(db.Model, SerializerMixin):
     sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
 
     sacco = relationship("Sacco", back_populates="matatus")
-    routes = relationship("Route", secondary="matatu_route",
-                          back_populates="matatus")
+    matatu_routes = relationship("Matatu_route", back_populates="matatu")
 
-    # Break loops
-    serialize_rules = ("-sacco.matatus", "-routes.matatus")
+    serialize_rules = ("-sacco.matatus", "-matatu_routes.matatu", "-sacco.routes")
 
 
 class Route(db.Model, SerializerMixin):
@@ -42,22 +54,6 @@ class Route(db.Model, SerializerMixin):
     sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
 
     sacco = relationship("Sacco", back_populates="routes")
-    matatus = relationship(
-        "Matatu", secondary="matatu_route", back_populates="routes")
+    matatu_routes = relationship("Matatu_route", back_populates="route")
 
-    # Break loops
-    serialize_rules = ("-sacco.routes", "-matatus.routes")
-
-
-class Matatu_route(db.Model, SerializerMixin):
-    __tablename__ = "matatu_route"
-    id = db.Column(db.Integer, primary_key=True)
-    matatu_id = db.Column(db.Integer, db.ForeignKey("matatus.id"))
-    route_id = db.Column(db.Integer, db.ForeignKey("routes.id"))
-    fare = db.Column(db.Integer, nullable=False)
-
-    matatu = relationship("Matatu")
-    route = relationship("Route")
-
-    # Break loops
-    serialize_rules = ("-matatu.routes", "-route.matatus")
+    serialize_rules = ("-sacco.routes", "-matatu_routes.route")
