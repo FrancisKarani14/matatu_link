@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify
+from flask import Flask, make_response, jsonify, request
 from flask_restful import Resource, Api
 from models import db, Matatu, Matatu_route, Route, Sacco
 from flask_migrate import Migrate
@@ -44,7 +44,95 @@ class All_matatus_in_sacco(Resource):
         )
         return response
 api.add_resource(All_matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
-        
 
+# view routes of a sacco
+
+
+class All_Routes_in_sacco(Resource):
+    def get(self, sacco_id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        routes_in_sacco = [route.to_dict() for route in sacco.routes]
+        response = make_response(
+            jsonify(routes_in_sacco),
+            200
+
+        )
+
+        return response
+
+
+api.add_resource(All_Routes_in_sacco, "/saccos/<int:sacco_id>/routes")
+
+# end point for adding a matatu
+class Adds_a_matatu_to_sacco(Resource):
+    def post(self, sacco_id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        data=request.get_json()
+
+        new_matatu= Matatu(
+            plate_number=data["plate_number"],
+            capacity=data["capacity"],
+            sacco_id=sacco.id
+        )
+        db.session.add(new_matatu)
+        db.session.commit()
+        return make_response({"msg":"matatu added succesfully"}, 201)
+
+
+api.add_resource(Adds_a_matatu_to_sacco, "/saccos/<int:sacco_id>/matatus/add")
+
+
+class Updates_matatu(Resource):
+    def put(self, sacco_id, id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        matatu = Matatu.query.get_or_404(id)
+
+        # ensure the matatu belongs to this sacco
+        if matatu.sacco_id != sacco.id:
+            return make_response(
+                {"error": "Matatu does not belong to this sacco"}, 400
+            )
+
+        data = request.get_json()
+
+        # update fields
+        matatu.plate_number = data.get("plate_number", matatu.plate_number)
+        matatu.capacity = data.get("capacity", matatu.capacity)
+
+        # commit changes
+        db.session.commit()
+
+        return make_response(
+            {"msg": "Matatu updated successfully", "matatu": matatu.to_dict()}, 200
+        )
+
+
+api.add_resource(Updates_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>")
+
+
+class Deletes_matatu(Resource):
+    def delete(self, sacco_id, id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        matatu = Matatu.query.get_or_404(id)
+
+        
+        if matatu.sacco_id != sacco.id:
+            return make_response({"error": "Matatu does not belong to this sacco"}, 400)
+
+        db.session.delete(matatu)
+        db.session.commit()
+
+        return make_response({"msg": "Matatu deleted successfully"}, 200)
+
+
+
+api.add_resource(
+    Deletes_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>/delete")
+
+
+
+
+        
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True)
+
