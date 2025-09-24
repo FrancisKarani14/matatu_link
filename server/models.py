@@ -1,9 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey
+# from sqlalchemy import ForeignKey
 
-db = SQLAlchemy()
+db = SQLAlchemy() 
 
 
 class Sacco(db.Model, SerializerMixin):
