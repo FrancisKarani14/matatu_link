@@ -81,6 +81,38 @@ class Adds_a_matatu_to_sacco(Resource):
 
 api.add_resource(Adds_a_matatu_to_sacco, "/saccos/<int:sacco_id>/matatus/add")
 
+
+class Updates_matatu(Resource):
+    def put(self, sacco_id, id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        matatu = Matatu.query.get_or_404(id)
+
+        # ensure the matatu belongs to this sacco
+        if matatu.sacco_id != sacco.id:
+            return make_response(
+                {"error": "Matatu does not belong to this sacco"}, 400
+            )
+
+        data = request.get_json()
+
+        # update fields
+        matatu.plate_number = data.get("plate_number", matatu.plate_number)
+        matatu.capacity = data.get("capacity", matatu.capacity)
+
+        # commit changes
+        db.session.commit()
+
+        return make_response(
+            {"msg": "Matatu updated successfully", "matatu": matatu.to_dict()}, 200
+        )
+
+
+api.add_resource(Updates_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>")
+
+
+
+
+
         
 if __name__ == "__main__":
     app.run(debug=True)
