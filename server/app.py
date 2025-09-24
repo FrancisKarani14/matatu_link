@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, make_response, jsonify
 from flask_restful import Resource, Api
 from models import db, Matatu, Matatu_route, Route, Sacco
 from flask_migrate import Migrate
@@ -22,9 +22,17 @@ class Welcome(Resource):
 api.add_resource(Welcome, "/")
 
 
-class all_saccos(Resource):
-    def get():
-        pass
+class All_saccos(Resource):
+    def get(self):
+        saccos=[sacco.to_dict() for sacco in Sacco.query.all()]
+        response=make_response(
+            jsonify(saccos),
+            200
+        )
+        return response
+    
+api.add_resource(All_saccos, "/saccos")
+        
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
