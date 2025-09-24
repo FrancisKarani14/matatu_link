@@ -16,7 +16,7 @@ class Sacco(db.Model, SerializerMixin):
     routes = relationship("Route", back_populates="sacco")
 
     # Break circular serialization
-    serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus", "-routes")
+    serialize_rules = ("-matatus.sacco", "-routes.sacco")
 
 
 class Matatu_route(db.Model, SerializerMixin):

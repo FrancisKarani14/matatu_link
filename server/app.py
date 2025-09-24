@@ -32,6 +32,34 @@ class All_saccos(Resource):
         return response
     
 api.add_resource(All_saccos, "/saccos")
+
+class All_Matatus_in_sacco(Resource):
+    def get(self, sacco_id):
+        sacco=Sacco.query.get_or_404(sacco_id)
+        matatus_in_sacco=[matatu.to_dict() for matatu in sacco.matatus]
+        response=make_response(
+            jsonify(matatus_in_sacco),
+            200
+        )
+        return response
+api.add_resource(All_Matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
+
+
+# view routes of a sacco
+class All_Routes_in_sacco(Resource):
+    def get(self, sacco_id):
+        sacco=Sacco.query.get_or_404(sacco_id)
+        routes_in_sacco=[route.to_dict() for route in sacco.routes]
+        response=make_response(
+            jsonify(routes_in_sacco),
+            200
+
+        )
+
+        return response
+    
+api.add_resource(All_Routes_in_sacco, "/saccos/<int:sacco_id>/routes")   
+
         
 
 if __name__ == "__main__":
