@@ -15,7 +15,7 @@ class Sacco(db.Model, SerializerMixin):
     matatus = relationship("Matatu", back_populates="sacco")
     routes = relationship("Route", back_populates="sacco")
 
-    serialize_rules = ("-matatus.sacco", "-routes.sacco")
+    serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus.matatu_routes")
 
 
 class Matatu(db.Model, SerializerMixin):
@@ -29,10 +29,9 @@ class Matatu(db.Model, SerializerMixin):
     matatu_routes = relationship("Matatu_route", back_populates="matatu")
 
     # association proxy → gives you matatu.routes directly
-    routes = association_proxy("matatu_routes", "route")
+    # routes = association_proxy("matatu_routes", "route")
 
-    serialize_rules = (
-        "-sacco.matatus", "-matatu_routes.matatu", "-sacco.routes")
+    serialize_rules = ("-sacco.matatus", "-matatu_routes.matatu")
 
 
 class Route(db.Model, SerializerMixin):
@@ -46,9 +45,9 @@ class Route(db.Model, SerializerMixin):
     matatu_routes = relationship("Matatu_route", back_populates="route")
 
     # association proxy → gives you route.matatus directly
-    matatus = association_proxy("matatu_routes", "matatu")
+    # matatus = association_proxy("matatu_routes", "matatu")
 
-    serialize_rules = ("-sacco.routes", "-matatu_routes.route")
+    serialize_rules = ("-sacco", "-matatu_routes.route")
 
 
 class Matatu_route(db.Model, SerializerMixin):
@@ -61,4 +60,4 @@ class Matatu_route(db.Model, SerializerMixin):
     matatu = relationship("Matatu", back_populates="matatu_routes")
     route = relationship("Route", back_populates="matatu_routes")
 
-    serialize_rules = ("-matatu.matatu_routes", "-route.matatu_routes")
+    # serialize_rules = ("-matatu.matatu_routes", "-route.matatu_routes")
