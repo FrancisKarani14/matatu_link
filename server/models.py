@@ -15,7 +15,22 @@ class Sacco(db.Model, SerializerMixin):
     matatus = relationship("Matatu", back_populates="sacco")
     routes = relationship("Route", back_populates="sacco")
 
-    serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus.matatu_routes")
+    # Break circular serialization
+    serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus", "-routes")
+
+
+class Matatu_route(db.Model, SerializerMixin):
+    __tablename__ = "matatu_route"
+    id = db.Column(db.Integer, primary_key=True)
+    matatu_id = db.Column(db.Integer, db.ForeignKey("matatus.id"))
+    route_id = db.Column(db.Integer, db.ForeignKey("routes.id"))
+    fare = db.Column(db.Integer, nullable=False)
+
+    #  back_populates
+    matatu = relationship("Matatu", back_populates="matatu_routes")
+    route = relationship("Route", back_populates="matatu_routes")
+
+    serialize_rules = ("-matatu.matatu_routes", "-route.matatu_routes", "-matatu.sacco", "-route.sacco")
 
 
 class Matatu(db.Model, SerializerMixin):
@@ -50,14 +65,14 @@ class Route(db.Model, SerializerMixin):
     serialize_rules = ("-sacco", "-matatu_routes.route")
 
 
-class Matatu_route(db.Model, SerializerMixin):
-    __tablename__ = "matatu_route"
-    id = db.Column(db.Integer, primary_key=True)
-    matatu_id = db.Column(db.Integer, db.ForeignKey("matatus.id"))
-    route_id = db.Column(db.Integer, db.ForeignKey("routes.id"))
-    fare = db.Column(db.Integer, nullable=False)
+# class Matatu_route(db.Model, SerializerMixin):
+#     __tablename__ = "matatu_route"
+#     id = db.Column(db.Integer, primary_key=True)pipenv shell
+#     matatu_id = db.Column(db.Integer, db.ForeignKey("matatus.id"))
+#     route_id = db.Column(db.Integer, db.ForeignKey("routes.id"))
+#     fare = db.Column(db.Integer, nullable=False)
 
-    matatu = relationship("Matatu", back_populates="matatu_routes")
-    route = relationship("Route", back_populates="matatu_routes")
+#     matatu = relationship("Matatu", back_populates="matatu_routes")
+#     route = relationship("Route", back_populates="matatu_routes")
 
-    # serialize_rules = ("-matatu.matatu_routes", "-route.matatu_routes")
+#     # serialize_rules = ("-matatu.matatu_routes", "-route.matatu_routes")
