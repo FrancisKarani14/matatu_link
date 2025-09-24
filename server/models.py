@@ -1,9 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import relationship
-# from sqlalchemy import ForeignKey
+from sqlalchemy.ext.associationproxy import association_proxy
 
-db = SQLAlchemy() 
+db = SQLAlchemy()
 
 
 class Sacco(db.Model, SerializerMixin):
@@ -12,13 +12,9 @@ class Sacco(db.Model, SerializerMixin):
     name = db.Column(db.String(20), nullable=False)
     reg_number = db.Column(db.String(10), nullable=False)
 
-    # relationships
-    matatus = relationship(
-        "Matatu", back_populates="sacco")  
-    
+    matatus = relationship("Matatu", back_populates="sacco")
     routes = relationship("Route", back_populates="sacco")
 
-    # serialize rules 
     serialize_rules = ("-matatus.sacco", "-routes.sacco")
 
 
@@ -29,16 +25,14 @@ class Matatu(db.Model, SerializerMixin):
     capacity = db.Column(db.Integer, nullable=False)
     sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
 
-    # relationships 
-    sacco = relationship("Sacco", back_populates="matatus") 
+    sacco = relationship("Sacco", back_populates="matatus")
+    matatu_routes = relationship("Matatu_route", back_populates="matatu")
 
-    # Many-to-many with Route
-    routes = relationship("Route",
-                          secondary="matatu_route",
-                          back_populates="matatus")
+    # association proxy → gives you matatu.routes directly
+    routes = association_proxy("matatu_routes", "route")
 
-    # serialize rules 
-    serialize_rules = ("-sacco.matatus", "-routes.matatus", "-matatu_routes.matatus")
+    serialize_rules = (
+        "-sacco.matatus", "-matatu_routes.matatu", "-sacco.routes")
 
 
 class Route(db.Model, SerializerMixin):
@@ -48,16 +42,13 @@ class Route(db.Model, SerializerMixin):
     end = db.Column(db.String(20), nullable=False)
     sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
 
-    # relationships 
-    sacco = relationship("Sacco", back_populates="routes")  
+    sacco = relationship("Sacco", back_populates="routes")
+    matatu_routes = relationship("Matatu_route", back_populates="route")
 
-    # Many-to-many with Matatu
-    matatus = relationship("Matatu",
-                           secondary="matatu_route",
-                           back_populates="routes")
+    # association proxy → gives you route.matatus directly
+    matatus = association_proxy("matatu_routes", "matatu")
 
-    # serialize rules 
-    serialize_rules = ("-sacco.routes", "-matatus.routes", "-route_matatus")
+    serialize_rules = ("-sacco.routes", "-matatu_routes.route")
 
 
 class Matatu_route(db.Model, SerializerMixin):
@@ -67,9 +58,7 @@ class Matatu_route(db.Model, SerializerMixin):
     route_id = db.Column(db.Integer, db.ForeignKey("routes.id"))
     fare = db.Column(db.Integer, nullable=False)
 
-    # Relationships to the main tables
-    matatu = relationship("Matatu")
-    route = relationship("Route")
+    matatu = relationship("Matatu", back_populates="matatu_routes")
+    route = relationship("Route", back_populates="matatu_routes")
 
-    # serialize rules for association table
-    serialize_rules = ("-matatu.routes", "-route.matatus")
+    serialize_rules = ("-matatu.matatu_routes", "-route.matatu_routes")
