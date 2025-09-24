@@ -32,6 +32,18 @@ class All_saccos(Resource):
         return response
     
 api.add_resource(All_saccos, "/saccos")
+
+class All_matatus_in_sacco(Resource):
+    def get(self, sacco_id):
+        sacco=Sacco.query.get_or_404(sacco_id)
+        matatus=[matatu.to_dict() for matatu in sacco.matatus]
+        response=make_response(
+            jsonify(matatus),
+            200
+
+        )
+        return response
+api.add_resource(All_matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
         
 
 if __name__ == "__main__":
