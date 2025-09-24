@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, make_response, jsonify
 from flask_restful import Resource, Api
 from models import db, Matatu, Matatu_route, Route, Sacco
 from flask_migrate import Migrate
@@ -22,9 +22,45 @@ class Welcome(Resource):
 api.add_resource(Welcome, "/")
 
 
-class all_saccos(Resource):
-    def get():
-        pass
+class All_saccos(Resource):
+    def get(self):
+        saccos=[sacco.to_dict() for sacco in Sacco.query.all()]
+        response=make_response(
+            jsonify(saccos),
+            200
+        )
+        return response
+    
+api.add_resource(All_saccos, "/saccos")
+
+class All_Matatus_in_sacco(Resource):
+    def get(self, sacco_id):
+        sacco=Sacco.query.get_or_404(sacco_id)
+        matatus_in_sacco=[matatu.to_dict() for matatu in sacco.matatus]
+        response=make_response(
+            jsonify(matatus_in_sacco),
+            200
+        )
+        return response
+api.add_resource(All_Matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
+
+
+# view routes of a sacco
+class All_Routes_in_sacco(Resource):
+    def get(self, sacco_id):
+        sacco=Sacco.query.get_or_404(sacco_id)
+        routes_in_sacco=[route.to_dict() for route in sacco.routes]
+        response=make_response(
+            jsonify(routes_in_sacco),
+            200
+
+        )
+
+        return response
+    
+api.add_resource(All_Routes_in_sacco, "/saccos/<int:sacco_id>/routes")   
+
+        
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
