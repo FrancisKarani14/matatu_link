@@ -110,6 +110,25 @@ class Updates_matatu(Resource):
 api.add_resource(Updates_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>")
 
 
+class Deletes_matatu(Resource):
+    def delete(self, sacco_id, id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        matatu = Matatu.query.get_or_404(id)
+
+        
+        if matatu.sacco_id != sacco.id:
+            return make_response({"error": "Matatu does not belong to this sacco"}, 400)
+
+        db.session.delete(matatu)
+        db.session.commit()
+
+        return make_response({"msg": "Matatu deleted successfully"}, 200)
+
+
+
+api.add_resource(
+    Deletes_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>/delete")
+
 
 
 
