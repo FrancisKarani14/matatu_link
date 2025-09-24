@@ -16,9 +16,15 @@ migrate = Migrate(app, db)
 class Welcome(Resource):
     def get(self):
         return "Hello"
+    
 
 
 api.add_resource(Welcome, "/")
+
+
+class all_saccos(Resource):
+    def get():
+        pass
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
