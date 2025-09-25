@@ -25,7 +25,7 @@ api.add_resource(Welcome, "/")
 
 class All_saccos(Resource):
     def get(self):
-        saccos=[sacco.to_dict() for sacco in Sacco.query.all()]
+        saccos=[sacco.to_dict(rules=("-matatus", "-routes")) for sacco in Sacco.query.all()]
         response=make_response(
             jsonify(saccos),
             200
@@ -37,7 +37,7 @@ api.add_resource(All_saccos, "/saccos")
 class All_matatus_in_sacco(Resource):
     def get(self, sacco_id):
         sacco=Sacco.query.get_or_404(sacco_id)
-        matatus=[matatu.to_dict() for matatu in sacco.matatus]
+        matatus=[matatu.to_dict(rules=("-sacco", "-matatu_routes")) for matatu in sacco.matatus]
         response=make_response(
             jsonify(matatus),
             200
@@ -52,7 +52,8 @@ api.add_resource(All_matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
 class All_Routes_in_sacco(Resource):
     def get(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
-        routes_in_sacco = [route.to_dict() for route in sacco.routes]
+        routes_in_sacco = [route.to_dict()
+                           for route in sacco.routes]
         response = make_response(
             jsonify(routes_in_sacco),
             200
