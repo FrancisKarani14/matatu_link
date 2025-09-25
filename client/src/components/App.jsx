@@ -1,10 +1,10 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Navigation from './components/Navigation'
-import Home from './pages/Home'
-import Saccos from './pages/Saccos'
-import Matatus from './pages/Matatus'
-import RoutesPage from './pages/RoutesPage'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navigation from "./components/Navigation";
+import Home from "./pages/Home";
+import Saccos from "./pages/Saccos";
+import Matatus from "./pages/Matatus";
+import RoutesPage from "./pages/RoutesPage";
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
         <Route path="/routes" element={<RoutesPage />} />
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
