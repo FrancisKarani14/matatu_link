@@ -15,6 +15,7 @@ function App() {
         <Navbar />
         <main>
           <Routes>
+            
             <Route path="/" element={<Home />} />
 
             <Route path="/saccos" element={<Saccos />} />
