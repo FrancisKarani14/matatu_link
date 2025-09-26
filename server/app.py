@@ -132,6 +132,28 @@ api.add_resource(
     Deletes_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>/delete")
 
 
+class All_matatus(Resource):
+    def get(self):
+        matatus = [matatu.to_dict(rules=("-sacco", "-matatu_routes"))
+                   for matatu in Matatu.query.all()]
+        response=make_response(
+            jsonify(matatus),
+            200
+        )
+        return response
+api.add_resource(All_matatus, "/matatus")
+
+class All_routes(Resource):
+    def get(self):
+        routes=[route.to_dict() for route in Route.query.all()]
+        response= make_response(
+            jsonify(routes),
+            200
+        )
+        return response
+api.add_resource(All_routes, "/routes")
+
+
 
 
         
