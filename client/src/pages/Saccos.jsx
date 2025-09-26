@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Saccos() {
   const [saccos, setSaccos] = useState([]);
@@ -7,7 +8,7 @@ export default function Saccos() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:5000/saccos") // 👈 Your backend endpoint for all saccos
+    fetch("http://localhost:5000/saccos") 
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch saccos");
@@ -48,12 +49,9 @@ export default function Saccos() {
                 >
                   View Matatus
                 </button>
-                <button
-                  onClick={() => navigate(`/saccos/${sacco.id}/routes`)}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  View Routes
-                </button>
+                 <Link to={`/saccos/${sacco.id}/routes`} className="text-blue-600 underline">
+              View Routes
+            </Link>
               </div>
             </div>
           ))}

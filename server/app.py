@@ -52,7 +52,7 @@ api.add_resource(All_matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
 class All_Routes_in_sacco(Resource):
     def get(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
-        routes_in_sacco = [route.to_dict()
+        routes_in_sacco = [route.to_dict(rules=("-sacco_id",))
                            for route in sacco.routes]
         response = make_response(
             jsonify(routes_in_sacco),
