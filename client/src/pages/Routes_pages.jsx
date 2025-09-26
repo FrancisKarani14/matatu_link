@@ -7,7 +7,7 @@ export default function Routes_pages() {
 
   useEffect(() => {
     const url = "http://localhost:5000/matatu_routes";
-    console.log("🌍 Fetching from:", url);
+    console.log("Fetching from:", url);
 
     setLoading(true);
     setError(null);
@@ -20,12 +20,12 @@ export default function Routes_pages() {
         return res.json();
       })
       .then((data) => {
-        console.log("✅ Fetched matatu_routes:", data);
+        console.log(" Fetched matatu_routes:", data);
         setMatatuRoutes(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("❌ Error fetching matatu_routes:", err);
+        console.error(" Error fetching matatu_routes:", err);
         setError(err.message);
         setLoading(false);
       });

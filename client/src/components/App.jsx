@@ -24,8 +24,7 @@ function App() {
         {/* All routes page */}
         <Route path="/routes" element={<Routes_pages />} />
 
-        {/* Catch-all route for debugging */}
-        <Route path="*" element={<div>Route not found! Current path: {window.location.pathname}</div>} />
+     
       </Routes>
     </BrowserRouter>
   );
