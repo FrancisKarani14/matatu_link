@@ -19,12 +19,13 @@ const Navbar = () => {
           <Link to="/" className={isActive("/")}>
             Home
           </Link>
-          <Link to="/matatus" className={isActive("/matatus")}>
-            Matatus
-          </Link>
           <Link to="/saccos" className={isActive("/saccos")}>
             Saccos
           </Link>
+          <Link to="/matatus" className={isActive("/matatus")}>
+            Matatus
+          </Link>
+          
           <Link to="/routes" className={isActive("/routes")}>
             Routes
           </Link>
