@@ -92,9 +92,7 @@ export default function Matatus() {
                       {matatu.plate_number}
                     </p>
                     <div className="space-y-1">
-                      <p className="text-sm text-gray-600">
-                        <strong>Model:</strong> {matatu.model}
-                      </p>
+                      
                       <p className="text-sm text-gray-600">
                         <strong>Capacity:</strong> {matatu.capacity} passengers
                       </p>
