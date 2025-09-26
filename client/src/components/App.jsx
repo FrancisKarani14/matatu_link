@@ -1,12 +1,10 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Saccos from './pages/Saccos'
-import Matatus from './pages/Matatus'
-
-import Routes_pages from './pages/Routes_pages'
-
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Saccos from "./pages/Saccos";
+import Matatus from "./pages/Matatus";
+import Routes_page from "./pages/Routes_page";
 
 function App() {
   return (
@@ -16,15 +14,18 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
-
             <Route path="/saccos" element={<Saccos />} />
             <Route path="/matatus" element={<Matatus />} />
-            <Route path="/routes" element={<Routes_pages />} />
+            
+            {/* All routes */}
+            <Route path="/routes" element={<Routes_page />} />
+            {/* Sacco-specific routes */}
+            <Route path="/saccos/:saccoId/routes" element={<Routes_page />} />
           </Routes>
         </main>
       </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
