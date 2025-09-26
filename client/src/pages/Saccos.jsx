@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function Saccos() {
+export default function Saccos() {
   const [saccos, setSaccos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // fetch from Flask backend
-    fetch("http://localhost:5000/saccos")
+    fetch("http://localhost:5000/saccos") // 👈 Your backend endpoint for all saccos
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to fetch");
+          throw new Error("Failed to fetch saccos");
         }
         return res.json();
       })
@@ -21,20 +22,43 @@ function Saccos() {
         console.error("Error fetching saccos:", err);
         setLoading(false);
       });
-  }, []); // empty [] → runs once when component mounts
+  }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Loading saccos...</p>;
 
   return (
-    <div>
-      <h1>Saccos</h1>
-      <ul>
-        {saccos.map((sacco) => (
-          <li key={sacco.id}>{sacco.name}</li>
-        ))}
-      </ul>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Saccos</h1>
+      {saccos.length === 0 ? (
+        <p>No saccos found.</p>
+      ) : (
+        <div className="grid gap-4">
+          {saccos.map((sacco) => (
+            <div
+              key={sacco.id}
+              className="p-4 border rounded-lg shadow bg-white"
+            >
+              <h2 className="text-lg font-semibold">{sacco.name}</h2>
+              <p className="text-gray-600">Reg Number: {sacco.reg_number}</p>
+
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => navigate(`/saccos/${sacco.id}/matatus`)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  View Matatus
+                </button>
+                <button
+                  onClick={() => navigate(`/saccos/${sacco.id}/routes`)}
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  View Routes
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
-export default Saccos;
