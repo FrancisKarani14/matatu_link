@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -9,22 +8,25 @@ import Routes_pages from "./pages/Routes_pages";
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-        <Navbar />
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/saccos" element={<Saccos />} />
-            <Route path="/matatus" element={<Matatus />} />
+      <Navbar />
+      <Routes>
+        {/* Home */}
+        <Route path="/" element={<Home />} />
 
-            {/* All routes */}
-            <Route path="/routes" element={<Routes_pages />} />
+        {/* Saccos routes - explicit paths */}
+        <Route path="/saccos" element={<Saccos />} />
+        <Route path="/saccos/:saccoId/routes" element={<Routes_pages />} />
+        <Route path="/saccos/:saccoId/matatus" element={<Matatus />} />
 
-            {/* Sacco-specific routes */}
-            <Route path="/saccos/:saccoId/routes" element={<Routes_pages />} />
-          </Routes>
-        </main>
-      </div>
+        {/* Matatus */}
+        <Route path="/matatus" element={<Matatus />} />
+
+        {/* All routes page */}
+        <Route path="/routes" element={<Routes_pages />} />
+
+        {/* Catch-all route for debugging */}
+        <Route path="*" element={<div>Route not found! Current path: {window.location.pathname}</div>} />
+      </Routes>
     </BrowserRouter>
   );
 }

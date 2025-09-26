@@ -49,9 +49,12 @@ export default function Saccos() {
                 >
                   View Matatus
                 </button>
-                 <Link to={`/saccos/${sacco.id}/routes`} className="text-blue-600 underline">
-              View Routes
-            </Link>
+                <Link 
+                  to={`/saccos/${sacco.id}/routes`} 
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-center no-underline inline-block"
+                >
+                  View Routes
+                </Link>
               </div>
             </div>
           ))}
