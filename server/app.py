@@ -154,6 +154,32 @@ class All_routes(Resource):
 api.add_resource(All_routes, "/routes")
 
 
+class All_Matatu_Routes(Resource):
+    def get(self):
+        routes = []
+        for mr in Matatu_route.query.all():
+            routes.append({
+                "id": mr.id,
+                "fare": mr.fare,
+                "matatu": {
+                    "id": mr.matatu.id,
+                    "plate_number": mr.matatu.plate_number,
+                    "capacity": mr.matatu.capacity
+                },
+                "route": {
+                    "id": mr.route.id,
+                    "start": mr.route.start,
+                    "end": mr.route.end
+                }
+            })
+
+        return make_response(jsonify(routes), 200)
+
+
+api.add_resource(All_Matatu_Routes, "/matatu_routes")
+
+
+
 
 
         
