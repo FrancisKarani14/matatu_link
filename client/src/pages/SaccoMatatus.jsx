@@ -8,7 +8,7 @@ export default function SaccoMatatus() {
 
   // Modals
   const [selectedMatatu, setSelectedMatatu] = useState(null);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
     fetch(`http://localhost:5000/saccos/${saccoId}/matatus`)
@@ -25,6 +25,21 @@ export default function SaccoMatatus() {
         setLoading(false);
       });
   }, [saccoId]);
+
+  const handlePayment = (matatu) => {
+    setSelectedMatatu(null);
+
+    const refNumber = "MP" + Math.floor(100000 + Math.random() * 900000); // fake ref
+    const timestamp = new Date().toLocaleString();
+
+    setReceipt({
+      plate: matatu.plate_number,
+      capacity: matatu.capacity,
+      fare: 100,
+      ref: refNumber,
+      date: timestamp,
+    });
+  };
 
   if (loading) return <p>Loading matatus...</p>;
 
@@ -73,10 +88,7 @@ export default function SaccoMatatus() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setSelectedMatatu(null);
-                  setPaymentSuccess(true);
-                }}
+                onClick={() => handlePayment(selectedMatatu)}
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
               >
                 Confirm Payment
@@ -86,19 +98,23 @@ export default function SaccoMatatus() {
         </div>
       )}
 
-      {/* Success Modal */}
-      {paymentSuccess && (
+      {/* Receipt Modal */}
+      {receipt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
             <h2 className="text-xl font-bold mb-4 text-green-600">
               ✅ Payment Successful
             </h2>
-            <p className="text-gray-700 mb-4">
-              Thank you for paying with M-Pesa.
-            </p>
+            <div className="text-left space-y-2">
+              <p><strong>Reference:</strong> {receipt.ref}</p>
+              <p><strong>Date:</strong> {receipt.date}</p>
+              <p><strong>Matatu:</strong> {receipt.plate}</p>
+              <p><strong>Capacity:</strong> {receipt.capacity}</p>
+              <p><strong>Fare Paid:</strong> KSh {receipt.fare}</p>
+            </div>
             <button
-              onClick={() => setPaymentSuccess(false)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => setReceipt(null)}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Close
             </button>

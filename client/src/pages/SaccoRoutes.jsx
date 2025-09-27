@@ -8,7 +8,7 @@ export default function SaccoRoutes() {
 
   // Modals
   const [selectedRoute, setSelectedRoute] = useState(null);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
     fetch(`http://localhost:5000/saccos/${saccoId}/routes`)
@@ -25,6 +25,21 @@ export default function SaccoRoutes() {
         setLoading(false);
       });
   }, [saccoId]);
+
+  const handlePayment = (route) => {
+    setSelectedRoute(null);
+
+    const refNumber = "MP" + Math.floor(100000 + Math.random() * 900000);
+    const timestamp = new Date().toLocaleString();
+
+    setReceipt({
+      start: route.start,
+      end: route.end,
+      fare: 100,
+      ref: refNumber,
+      date: timestamp,
+    });
+  };
 
   if (loading) return <p>Loading routes...</p>;
 
@@ -69,10 +84,7 @@ export default function SaccoRoutes() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setSelectedRoute(null);
-                  setPaymentSuccess(true);
-                }}
+                onClick={() => handlePayment(selectedRoute)}
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
               >
                 Confirm Payment
@@ -82,19 +94,22 @@ export default function SaccoRoutes() {
         </div>
       )}
 
-      {/* Success Modal */}
-      {paymentSuccess && (
+      {/* Receipt Modal */}
+      {receipt && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
             <h2 className="text-xl font-bold mb-4 text-green-600">
               ✅ Payment Successful
             </h2>
-            <p className="text-gray-700 mb-4">
-              Your fare has been paid successfully.
-            </p>
+            <div className="text-left space-y-2">
+              <p><strong>Reference:</strong> {receipt.ref}</p>
+              <p><strong>Date:</strong> {receipt.date}</p>
+              <p><strong>Route:</strong> {receipt.start} → {receipt.end}</p>
+              <p><strong>Fare Paid:</strong> KSh {receipt.fare}</p>
+            </div>
             <button
-              onClick={() => setPaymentSuccess(false)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => setReceipt(null)}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Close
             </button>
