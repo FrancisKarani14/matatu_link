@@ -4,6 +4,8 @@ import Home from "./pages/Home";
 import Saccos from "./pages/Saccos";
 import Matatus from "./pages/Matatus";
 import Routes_pages from "./pages/Routes_pages";
+import SaccoMatatus from "./pages/SaccoMatatus";
+import SaccoRoutes from "./pages/SaccoRoutes";
 
 function App() {
   return (
@@ -13,18 +15,14 @@ function App() {
         {/* Home */}
         <Route path="/" element={<Home />} />
 
-        {/* Saccos routes - explicit paths */}
+        {/* Saccos */}
         <Route path="/saccos" element={<Saccos />} />
-        <Route path="/saccos/:saccoId/routes" element={<Routes_pages />} />
-        <Route path="/saccos/:saccoId/matatus" element={<Matatus />} />
+        <Route path="/saccos/:saccoId/matatus" element={<SaccoMatatus />} />
+        <Route path="/saccos/:saccoId/routes" element={<SaccoRoutes />} />
 
-        {/* Matatus */}
+        {/* Global Matatus + Routes */}
         <Route path="/matatus" element={<Matatus />} />
-
-        {/* All routes page */}
         <Route path="/routes" element={<Routes_pages />} />
-
-     
       </Routes>
     </BrowserRouter>
   );
