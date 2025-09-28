@@ -11,6 +11,8 @@ sqlalchemy-serializer = "*"
 flask-migrate = "*"
 flask-restful = "*"
 flask-cors = "*"
+psycopg2-binary = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
