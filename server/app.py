@@ -5,18 +5,18 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
-print("DATABASE_URL:", os.getenv("DATABASE_URL"))
-
-
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-    "DATABASE_URL", "sqlite:///matatu.db")
+CORS(app, origins=["https://matatu-link.vercel.app"])
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "NajmaKarani")
 db.init_app(app)
 migrate = Migrate(app, db)
 
@@ -24,7 +24,6 @@ migrate = Migrate(app, db)
 class Welcome(Resource):
     def get(self):
         return "Hello"
-    
 
 
 api.add_resource(Welcome, "/")
@@ -32,60 +31,48 @@ api.add_resource(Welcome, "/")
 
 class All_saccos(Resource):
     def get(self):
-        saccos=[sacco.to_dict(rules=("-matatus", "-routes")) for sacco in Sacco.query.all()]
-        response=make_response(
-            jsonify(saccos),
-            200
-        )
-        return response
-    
+        saccos = [sacco.to_dict(rules=("-matatus", "-routes"))
+                  for sacco in Sacco.query.all()]
+        return make_response(jsonify(saccos), 200)
+
+
 api.add_resource(All_saccos, "/saccos")
+
 
 class All_matatus_in_sacco(Resource):
     def get(self, sacco_id):
-        sacco=Sacco.query.get_or_404(sacco_id)
-        matatus=[matatu.to_dict(rules=("-sacco", "-matatu_routes")) for matatu in sacco.matatus]
-        response=make_response(
-            jsonify(matatus),
-            200
+        sacco = Sacco.query.get_or_404(sacco_id)
+        matatus = [matatu.to_dict(rules=("-sacco", "-matatu_routes"))
+                   for matatu in sacco.matatus]
+        return make_response(jsonify(matatus), 200)
 
-        )
-        return response
+
 api.add_resource(All_matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
-
-# view routes of a sacco
 
 
 class All_Routes_in_sacco(Resource):
     def get(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
-        routes_in_sacco = [route.to_dict(rules=("-sacco_id",))
-                           for route in sacco.routes]
-        response = make_response(
-            jsonify(routes_in_sacco),
-            200
-
-        )
-
-        return response
+        routes_in_sacco = [route.to_dict(
+            rules=("-sacco_id",)) for route in sacco.routes]
+        return make_response(jsonify(routes_in_sacco), 200)
 
 
 api.add_resource(All_Routes_in_sacco, "/saccos/<int:sacco_id>/routes")
 
-# end point for adding a matatu
+
 class Adds_a_matatu_to_sacco(Resource):
     def post(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
-        data=request.get_json()
-
-        new_matatu= Matatu(
+        data = request.get_json()
+        new_matatu = Matatu(
             plate_number=data["plate_number"],
             capacity=data["capacity"],
             sacco_id=sacco.id
         )
         db.session.add(new_matatu)
         db.session.commit()
-        return make_response({"msg":"matatu added succesfully"}, 201)
+        return make_response({"msg": "Matatu added successfully"}, 201)
 
 
 api.add_resource(Adds_a_matatu_to_sacco, "/saccos/<int:sacco_id>/matatus/add")
@@ -95,25 +82,13 @@ class Updates_matatu(Resource):
     def put(self, sacco_id, id):
         sacco = Sacco.query.get_or_404(sacco_id)
         matatu = Matatu.query.get_or_404(id)
-
-        # ensure the matatu belongs to this sacco
         if matatu.sacco_id != sacco.id:
-            return make_response(
-                {"error": "Matatu does not belong to this sacco"}, 400
-            )
-
+            return make_response({"error": "Matatu does not belong to this sacco"}, 400)
         data = request.get_json()
-
-        # update fields
         matatu.plate_number = data.get("plate_number", matatu.plate_number)
         matatu.capacity = data.get("capacity", matatu.capacity)
-
-        # commit changes
         db.session.commit()
-
-        return make_response(
-            {"msg": "Matatu updated successfully", "matatu": matatu.to_dict()}, 200
-        )
+        return make_response({"msg": "Matatu updated successfully", "matatu": matatu.to_dict()}, 200)
 
 
 api.add_resource(Updates_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>")
@@ -123,16 +98,11 @@ class Deletes_matatu(Resource):
     def delete(self, sacco_id, id):
         sacco = Sacco.query.get_or_404(sacco_id)
         matatu = Matatu.query.get_or_404(id)
-
-        
         if matatu.sacco_id != sacco.id:
             return make_response({"error": "Matatu does not belong to this sacco"}, 400)
-
         db.session.delete(matatu)
         db.session.commit()
-
         return make_response({"msg": "Matatu deleted successfully"}, 200)
-
 
 
 api.add_resource(
@@ -143,53 +113,41 @@ class All_matatus(Resource):
     def get(self):
         matatus = [matatu.to_dict(rules=("-sacco", "-matatu_routes"))
                    for matatu in Matatu.query.all()]
-        response=make_response(
-            jsonify(matatus),
-            200
-        )
-        return response
+        return make_response(jsonify(matatus), 200)
+
+
 api.add_resource(All_matatus, "/matatus")
+
 
 class All_routes(Resource):
     def get(self):
-        routes=[route.to_dict() for route in Route.query.all()]
-        response= make_response(
-            jsonify(routes),
-            200
-        )
-        return response
+        routes = [route.to_dict() for route in Route.query.all()]
+        return make_response(jsonify(routes), 200)
+
+
 api.add_resource(All_routes, "/routes")
 
 
 class All_Matatu_Routes(Resource):
     def get(self):
-        routes = []
-        for mr in Matatu_route.query.all():
-            routes.append({
-                "id": mr.id,
-                "fare": mr.fare,
-                "matatu": {
-                    "id": mr.matatu.id,
-                    "plate_number": mr.matatu.plate_number,
-                    "capacity": mr.matatu.capacity
-                },
-                "route": {
-                    "id": mr.route.id,
-                    "start": mr.route.start,
-                    "end": mr.route.end
-                }
-            })
-
+        routes = [{
+            "id": mr.id,
+            "fare": mr.fare,
+            "matatu": {
+                "id": mr.matatu.id,
+                "plate_number": mr.matatu.plate_number,
+                "capacity": mr.matatu.capacity
+            },
+            "route": {
+                "id": mr.route.id,
+                "start": mr.route.start,
+                "end": mr.route.end
+            }
+        } for mr in Matatu_route.query.all()]
         return make_response(jsonify(routes), 200)
 
 
 api.add_resource(All_Matatu_Routes, "/matatu_routes")
 
-
-
-
-
-        
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    app.run(debug=os.getenv("DEBUG", "False") == "True")
