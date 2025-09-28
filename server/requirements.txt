@@ -1,4 +1,4 @@
-Flask==2.3.4
+Flask==2.3.3
 Flask-RESTful==0.3.10
 Flask-Migrate==4.0.4
 Flask-Cors==3.1.2
