@@ -10,9 +10,11 @@ export default function Matatus() {
   // Modal states
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+
   const [selectedMatatu, setSelectedMatatu] = useState(null);
 
-  // Form state for editing
+  // Form state for editing & adding
   const [formData, setFormData] = useState({ plate_number: "", capacity: "" });
 
   useEffect(() => {
@@ -74,6 +76,19 @@ export default function Matatus() {
     setSelectedMatatu(null);
   };
 
+  // Save add
+  const handleSaveAdd = () => {
+    const newMatatu = {
+      id: Date.now(), // temporary id for frontend
+      plate_number: formData.plate_number,
+      capacity: formData.capacity,
+    };
+
+    setMatatus((prev) => [...prev, newMatatu]);
+    setShowAddModal(false);
+    setFormData({ plate_number: "", capacity: "" });
+  };
+
   if (loading) {
     return (
       <div className="p-6 flex justify-center items-center">
@@ -93,9 +108,17 @@ export default function Matatus() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">
-        {saccoId ? `Matatus in Sacco #${saccoId}` : "All Matatus"}
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">
+          {saccoId ? `Matatus in Sacco #${saccoId}` : "All Matatus"}
+        </h1>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          + Add Matatu
+        </button>
+      </div>
 
       {matatus.length === 0 ? (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
@@ -211,6 +234,51 @@ export default function Matatus() {
                 className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ➕ Add Matatu Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
+            <h2 className="text-xl font-bold mb-4">Add New Matatu</h2>
+            <label className="block mb-2">
+              Plate Number
+              <input
+                type="text"
+                value={formData.plate_number}
+                onChange={(e) =>
+                  setFormData({ ...formData, plate_number: e.target.value })
+                }
+                className="w-full border p-2 rounded mt-1"
+              />
+            </label>
+            <label className="block mb-4">
+              Capacity
+              <input
+                type="number"
+                value={formData.capacity}
+                onChange={(e) =>
+                  setFormData({ ...formData, capacity: e.target.value })
+                }
+                className="w-full border p-2 rounded mt-1"
+              />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveAdd}
+                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Add
               </button>
             </div>
           </div>
