@@ -11,14 +11,14 @@ import logging
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL environment variable not set! Deployment will fail.")
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# if not DATABASE_URL:
+#     raise RuntimeError(
+#         "DATABASE_URL environment variable not set! Deployment will fail.")
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-logger.info(f"Database URL: {DATABASE_URL}")
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+# logger.info(f"Database URL: {DATABASE_URL}")
 
 app = Flask(__name__, static_folder="./client/dist", static_url_path="/")
 api = Api(app)
@@ -194,4 +194,4 @@ api.add_resource(All_Matatu_Routes, "/matatu_routes")
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=False, port=5001)
