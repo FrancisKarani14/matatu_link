@@ -7,28 +7,47 @@ import os
 from dotenv import load_dotenv
 import logging
 
-print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable not set! Deployment will fail.")
+
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info(f"Database URL: {DATABASE_URL}")
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app, origins=["https://matatu-link.vercel.app"])
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL environment variable not set! Deployment will fail without it."
-    )
+
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "NajmaKarani")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "NajmaKarani12345")
 db.init_app(app)
 migrate = Migrate(app, db)
 
+# handle uncaught exceptions globally
 
+
+@app.errorhandler(Exception)
+def handle_all_exceptions(e):
+    logger.exception("Unhandled exception occurred")
+    return {"error": str(e)}, 500
+
+# Health check endpoint
+
+
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
+
+# welcome endpoint
 class Welcome(Resource):
     def get(self):
         return "Hello"
@@ -36,7 +55,7 @@ class Welcome(Resource):
 
 api.add_resource(Welcome, "/")
 
-
+# All saccos endpoint
 class All_saccos(Resource):
     def get(self):
         saccos = [sacco.to_dict(rules=("-matatus", "-routes"))
@@ -46,7 +65,7 @@ class All_saccos(Resource):
 
 api.add_resource(All_saccos, "/saccos")
 
-
+# all matatus in a sacco
 class All_matatus_in_sacco(Resource):
     def get(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
@@ -57,7 +76,7 @@ class All_matatus_in_sacco(Resource):
 
 api.add_resource(All_matatus_in_sacco, "/saccos/<int:sacco_id>/matatus")
 
-
+# all routes in a sacco
 class All_Routes_in_sacco(Resource):
     def get(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
@@ -68,7 +87,7 @@ class All_Routes_in_sacco(Resource):
 
 api.add_resource(All_Routes_in_sacco, "/saccos/<int:sacco_id>/routes")
 
-
+# add a matatu to a sacco
 class Adds_a_matatu_to_sacco(Resource):
     def post(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
@@ -85,7 +104,7 @@ class Adds_a_matatu_to_sacco(Resource):
 
 api.add_resource(Adds_a_matatu_to_sacco, "/saccos/<int:sacco_id>/matatus/add")
 
-
+# update a matatu in a sacco
 class Updates_matatu(Resource):
     def put(self, sacco_id, id):
         sacco = Sacco.query.get_or_404(sacco_id)
@@ -101,7 +120,7 @@ class Updates_matatu(Resource):
 
 api.add_resource(Updates_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>")
 
-
+# delete a matatu in a sacco
 class Deletes_matatu(Resource):
     def delete(self, sacco_id, id):
         sacco = Sacco.query.get_or_404(sacco_id)
@@ -116,7 +135,7 @@ class Deletes_matatu(Resource):
 api.add_resource(
     Deletes_matatu, "/saccos/<int:sacco_id>/matatus/<int:id>/delete")
 
-
+# all matatus endpoint
 class All_matatus(Resource):
     def get(self):
         matatus = [matatu.to_dict(rules=("-sacco", "-matatu_routes"))
@@ -126,7 +145,7 @@ class All_matatus(Resource):
 
 api.add_resource(All_matatus, "/matatus")
 
-
+# all routes endpoint
 class All_routes(Resource):
     def get(self):
         routes = [route.to_dict() for route in Route.query.all()]
@@ -135,7 +154,7 @@ class All_routes(Resource):
 
 api.add_resource(All_routes, "/routes")
 
-
+# all matatu_routes endpoint
 class All_Matatu_Routes(Resource):
     def get(self):
         routes = [{
@@ -158,14 +177,16 @@ class All_Matatu_Routes(Resource):
 api.add_resource(All_Matatu_Routes, "/matatu_routes")
 
 
-class DebugSaccos(Resource):
-    def get(self):
-        saccos = Sacco.query.all()
-        return [{"id": s.id, "name": s.name} for s in saccos]
+# class DebugSaccos(Resource):
+#     def get(self):
+#         saccos = Sacco.query.all()
+#         return [{"id": s.id, "name": s.name} for s in saccos]
 
 
-api.add_resource(DebugSaccos, "/debug_saccos")
+# api.add_resource(DebugSaccos, "/debug_saccos")
 
 
 if __name__ == "__main__":
-    app.run(debug=os.getenv("DEBUG", "False") == "True")
+    port = int(os.environ.get("PORT", 5000))
+    debug_mode = os.getenv("DEBUG", "False") == "True"
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
