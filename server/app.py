@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 import logging
 
-# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+print("DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
