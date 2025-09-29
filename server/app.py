@@ -7,6 +7,8 @@ import os
 from dotenv import load_dotenv
 import logging
 
+# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
@@ -14,8 +16,11 @@ app = Flask(__name__)
 api = Api(app)
 CORS(app, origins=["https://matatu-link.vercel.app"])
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-    "DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable not set! Deployment will fail without it."
+    )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "NajmaKarani")
 db.init_app(app)
