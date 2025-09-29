@@ -15,7 +15,7 @@ api = Api(app)
 CORS(app, origins=["https://matatu-link.vercel.app"])
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-    "postgresql://matatu_link_db_user:txJ8RwIqdMMOx8TKq4OypHX0MeWPSByx@dpg-d3cph1ali9vc73dprseg-a.oregon-postgres.render.com/matatu_link_db")
+    "DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "NajmaKarani")
 db.init_app(app)
