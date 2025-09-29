@@ -6,7 +6,7 @@ export default function Routes_pages() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const url = "http://localhost:5000/matatu_routes";
+    const url = "https://matatu-link-18.onrender.com/matatu_routes";
     console.log("Fetching from:", url);
 
     setLoading(true);

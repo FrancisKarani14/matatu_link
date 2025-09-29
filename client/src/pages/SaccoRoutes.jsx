@@ -11,7 +11,7 @@ export default function SaccoRoutes() {
   const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/saccos/${saccoId}/routes`)
+    fetch(`https://matatu-link-18.onrender.com/saccos/${saccoId}/routes`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch routes");
         return res.json();

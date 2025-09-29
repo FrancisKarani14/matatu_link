@@ -11,7 +11,7 @@ export default function SaccoMatatus() {
   const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/saccos/${saccoId}/matatus`)
+    fetch(`https://matatu-link-18.onrender.com/saccos/${saccoId}/matatus`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch matatus");
         return res.json();

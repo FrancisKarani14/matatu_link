@@ -8,7 +8,7 @@ export default function Saccos() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:5000/saccos")
+    fetch("https://matatu-link-18.onrender.com/saccos")
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch saccos");

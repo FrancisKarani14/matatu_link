@@ -16,9 +16,10 @@ export default function Matatus() {
   const [formData, setFormData] = useState({ plate_number: "", capacity: "" });
 
   useEffect(() => {
-    let url = "http://localhost:5000/matatus";
+    let url = "https://matatu-link-18.onrender.com/matatus";
     if (saccoId) {
-      url = `http://localhost:5000/saccos/${saccoId}/matatus`;
+      url = `https://matatu-link-18.onrender.com/saccos/${saccoId}/matatus`
+;
     }
 
     setLoading(true);
