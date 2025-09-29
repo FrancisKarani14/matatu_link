@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 export default function Saccos() {
   const [saccos, setSaccos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(""); // ✅ search state
+  const [search, setSearch] = useState(""); 
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -213,7 +213,7 @@ export default function Matatus() {
         </div>
       )}
 
-      {/* 🗑 Delete Confirmation Modal */}
+      {/*  Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
