@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app, origins=["https://matatu-link.vercel.app"])
+CORS(app, origins=["https://matatu-link.vercel.app/"])
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
