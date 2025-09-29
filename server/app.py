@@ -21,6 +21,8 @@ if not DATABASE_URL:
     raise RuntimeError(
         "DATABASE_URL environment variable not set! Deployment will fail without it."
     )
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "NajmaKarani")
 db.init_app(app)
