@@ -2,7 +2,7 @@ from app import app, db
 from models import Sacco, Matatu, Route, Matatu_route
 
 with app.app_context():
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
     s1 = Sacco(name="City Riders", reg_number="CR123")
