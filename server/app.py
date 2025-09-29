@@ -157,5 +157,15 @@ class All_Matatu_Routes(Resource):
 
 api.add_resource(All_Matatu_Routes, "/matatu_routes")
 
+
+class DebugSaccos(Resource):
+    def get(self):
+        saccos = Sacco.query.all()
+        return [{"id": s.id, "name": s.name} for s in saccos]
+
+
+api.add_resource(DebugSaccos, "/debug_saccos")
+
+
 if __name__ == "__main__":
     app.run(debug=os.getenv("DEBUG", "False") == "True")
