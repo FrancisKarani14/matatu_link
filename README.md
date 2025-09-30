@@ -79,6 +79,7 @@ python app.py
 ```
 
 * Runs the backend at `http://localhost:5000`
+* run the API endpoints in app.py on postman
 
 ### Frontend (React)
 
