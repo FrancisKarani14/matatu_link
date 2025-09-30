@@ -15,6 +15,7 @@ pipenv/
 Pipfile.lock
 Pipfile
 
+
 # Flask instance folder (where SQLite used to live + secrets)
 instance/
 

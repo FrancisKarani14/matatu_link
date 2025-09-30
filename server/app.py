@@ -11,34 +11,41 @@ import logging
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL environment variable not set! Deployment will fail.")
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# if not DATABASE_URL:
+#     raise RuntimeError(
+#         "DATABASE_URL environment variable not set! Deployment will fail.")
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-logger.info(f"Database URL: {DATABASE_URL}")
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+# logger.info(f"Database URL: {DATABASE_URL}")
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="./client/dist", static_url_path="/")
 api = Api(app)
-CORS(app, origins=["https://matatu-link.vercel.app"])
+CORS(app)
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///matatu.db"
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "NajmaKarani12345")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 db.init_app(app)
 migrate = Migrate(app, db)
 
 # handle uncaught exceptions globally
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
 
 
-@app.errorhandler(Exception)
-def handle_all_exceptions(e):
-    logger.exception("Unhandled exception occurred")
-    return {"error": str(e)}, 500
+@app.errorhandler(404)
+def not_found(err):
+    return app.send_static_file("index.html")
+
+# @app.errorhandler(Exception)
+# def handle_all_exceptions(e):
+#     logger.exception("Unhandled exception occurred")
+#     return {"error": str(e)}, 500
 
 # Health check endpoint
 
@@ -187,6 +194,4 @@ api.add_resource(All_Matatu_Routes, "/matatu_routes")
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    debug_mode = os.getenv("DEBUG", "False") == "True"
-    app.run(host="0.0.0.0", port=port, debug=debug_mode)
+    app.run(debug=False, port=5001)
