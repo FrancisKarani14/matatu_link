@@ -75,11 +75,11 @@ cd matatu_link
 cd server
 pipenv install
 pipenv shell
-python app.py
+pipenv run flask run
 ```
 
-* Runs the backend at `http://localhost:5000`
-* run the API endpoints in app.py on postman
+* Runs the full-stack app at `http://localhost:5000`
+  
 
 ### Frontend (React)
 
@@ -92,6 +92,7 @@ npm run dev
 * Runs the frontend at `http://localhost:5173` (default Vite port)
 
 ---
+
 
 ## 🌐 Live Deployment
 
