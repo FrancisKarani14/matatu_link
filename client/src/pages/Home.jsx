@@ -21,10 +21,10 @@ const Home = () => {
             matatus near you. Travel smarter, faster, and with confidence.
           </p>
           <Link
-            to="/saccos"
+            to="/login"
             className="px-8 py-4 bg-red-900 text-white text-lg font-semibold rounded-lg shadow-lg hover:bg-red-950 transition"
           >
-            Get Started
+            Get started
           </Link>
         </div>
       </section>

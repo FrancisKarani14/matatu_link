@@ -6,6 +6,8 @@ import Matatus from "./pages/Matatus";
 import Routes_pages from "./pages/Routes_pages";
 import SaccoMatatus from "./pages/SaccoMatatus";
 import SaccoRoutes from "./pages/SaccoRoutes";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
@@ -14,6 +16,10 @@ function App() {
       <Routes>
         {/* Home */}
         <Route path="/" element={<Home />} />
+
+        {/* Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Saccos */}
         <Route path="/saccos" element={<Saccos />} />

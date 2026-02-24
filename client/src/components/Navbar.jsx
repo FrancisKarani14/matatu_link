@@ -6,13 +6,16 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const isActive = (path) =>
-    location.pathname === path ? "text-blue-600 font-semibold" : "text-gray-700"
+    location.pathname === path ? "text-red-900 font-semibold" : "text-gray-700"
 
   return (
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
-        <h1 className="text-xl font-bold text-blue-600">Matatu Link</h1>
+        <div className="flex items-center gap-2">
+          <img src="/images/fav.png" alt="Matatu Link" className="h-8 w-8" />
+          <h1 className="text-xl font-bold text-red-900">Matatu Link</h1>
+        </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-6">
