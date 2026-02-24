@@ -12,10 +12,10 @@ class Sacco(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False)
     reg_number = db.Column(db.String(10), nullable=False)
-    admin_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
-    matatus = relationship("Matatu", back_populates="sacco")
-    routes = relationship("Route", back_populates="sacco")
+    matatus = relationship("Matatu", back_populates="sacco", cascade="all, delete-orphan")
+    routes = relationship("Route", back_populates="sacco", cascade="all, delete-orphan")
     admin = relationship("User", back_populates="sacco")
 
     serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus", "-routes", "-admin.sacco")
@@ -23,9 +23,12 @@ class Sacco(db.Model, SerializerMixin):
 
 class Matatu_route(db.Model, SerializerMixin):
     __tablename__ = "matatu_route"
+    __table_args__ = (
+        db.Index('idx_matatu_route', 'matatu_id', 'route_id'),
+    )
     id = db.Column(db.Integer, primary_key=True)
-    matatu_id = db.Column(db.Integer, db.ForeignKey("matatus.id"))
-    route_id = db.Column(db.Integer, db.ForeignKey("routes.id"))
+    matatu_id = db.Column(db.Integer, db.ForeignKey("matatus.id", ondelete="CASCADE"))
+    route_id = db.Column(db.Integer, db.ForeignKey("routes.id", ondelete="CASCADE"))
     fare = db.Column(db.Integer, nullable=False)
 
     #  back_populates
@@ -40,10 +43,10 @@ class Matatu(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     plate_number = db.Column(db.String(20), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
-    sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
+    sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id", ondelete="CASCADE"))
 
     sacco = relationship("Sacco", back_populates="matatus")
-    matatu_routes = relationship("Matatu_route", back_populates="matatu")
+    matatu_routes = relationship("Matatu_route", back_populates="matatu", cascade="all, delete-orphan")
 
     # association proxy → gives you matatu.routes directly
     # routes = association_proxy("matatu_routes", "route")
@@ -56,10 +59,10 @@ class Route(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     start = db.Column(db.String(20), nullable=False)
     end = db.Column(db.String(20), nullable=False)
-    sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id"))
+    sacco_id = db.Column(db.Integer, db.ForeignKey("saccos.id", ondelete="CASCADE"))
 
     sacco = relationship("Sacco", back_populates="routes")
-    matatu_routes = relationship("Matatu_route", back_populates="route")
+    matatu_routes = relationship("Matatu_route", back_populates="route", cascade="all, delete-orphan")
 
     # association proxy → gives you route.matatus directly
     # matatus = association_proxy("matatu_routes", "matatu")
@@ -71,7 +74,7 @@ class User(db.Model, SerializerMixin):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), default="user")  # user, admin, super_admin
 
