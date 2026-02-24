@@ -17,7 +17,7 @@ export default function Saccos() {
         return res.json();
       })
       .then((data) => {
-        setSaccos(data);
+        setSaccos(data.saccos || data);
         setLoading(false);
       })
       .catch((err) => {

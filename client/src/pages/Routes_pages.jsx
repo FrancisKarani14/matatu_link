@@ -22,7 +22,7 @@ export default function Routes_pages() {
       })
       .then((data) => {
         console.log(" Fetched matatu_routes:", data);
-        setMatatuRoutes(Array.isArray(data) ? data : []);
+        setMatatuRoutes(data.matatu_routes || data);
         setLoading(false);
       })
       .catch((err) => {
