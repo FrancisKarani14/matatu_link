@@ -3,56 +3,16 @@ from flask_restful import Resource, Api
 from models import db, Matatu, Matatu_route, Route, Sacco
 from flask_migrate import Migrate
 from flask_cors import CORS
-import os
-from dotenv import load_dotenv
-import logging
 
-# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
-
-load_dotenv()
-
-# DATABASE_URL = os.getenv("DATABASE_URL")
-# if not DATABASE_URL:
-#     raise RuntimeError(
-#         "DATABASE_URL environment variable not set! Deployment will fail.")
-
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
-# logger.info(f"Database URL: {DATABASE_URL}")
-
-app = Flask(__name__, static_folder="./client/dist", static_url_path="/")
+app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///matatu.db"
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 db.init_app(app)
 migrate = Migrate(app, db)
-
-# handle uncaught exceptions globally
-@app.route("/")
-def index():
-    return app.send_static_file("index.html")
-
-
-@app.errorhandler(404)
-def not_found(err):
-    return app.send_static_file("index.html")
-
-# @app.errorhandler(Exception)
-# def handle_all_exceptions(e):
-#     logger.exception("Unhandled exception occurred")
-#     return {"error": str(e)}, 500
-
-# Health check endpoint
-
-
-@app.route("/health")
-def health():
-    return {"status": "ok"}, 200
 
 # welcome endpoint
 class Welcome(Resource):
@@ -194,4 +154,4 @@ api.add_resource(All_Matatu_Routes, "/matatu_routes")
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5001)
+    app.run(debug=True, port=5000)
