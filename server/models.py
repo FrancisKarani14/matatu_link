@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.associationproxy import association_proxy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -11,13 +12,13 @@ class Sacco(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), nullable=False)
     reg_number = db.Column(db.String(10), nullable=False)
+    admin_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     matatus = relationship("Matatu", back_populates="sacco")
     routes = relationship("Route", back_populates="sacco")
+    admin = relationship("User", back_populates="sacco")
 
-    # Break circular serialization
-
-    serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus", "-routes")
+    serialize_rules = ("-matatus.sacco", "-routes.sacco", "-matatus", "-routes", "-admin.sacco")
 
 
 class Matatu_route(db.Model, SerializerMixin):
@@ -66,4 +67,20 @@ class Route(db.Model, SerializerMixin):
     serialize_rules = ("-sacco", "-matatu_routes" )
 
 
+class User(db.Model, SerializerMixin):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), default="user")  # user, admin, super_admin
 
+    sacco = relationship("Sacco", back_populates="admin", uselist=False)
+
+    serialize_rules = ("-password_hash", "-sacco.admin")
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)

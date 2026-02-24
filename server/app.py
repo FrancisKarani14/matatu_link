@@ -1,18 +1,20 @@
 from flask import Flask, make_response, jsonify, request
 from flask_restful import Resource, Api
-from models import db, Matatu, Matatu_route, Route, Sacco
+from models import db, Matatu, Matatu_route, Route, Sacco, User
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
-
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///matatu.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_SECRET_KEY"] = "your-secret-key-change-in-production"
 db.init_app(app)
 migrate = Migrate(app, db)
+jwt = JWTManager(app)
 
 # welcome endpoint
 class Welcome(Resource):
@@ -142,6 +144,50 @@ class All_Matatu_Routes(Resource):
 
 
 api.add_resource(All_Matatu_Routes, "/matatu_routes")
+
+# Register endpoint
+class Register(Resource):
+    def post(self):
+        data = request.get_json()
+        
+        if User.query.filter_by(email=data["email"]).first():
+            return make_response({"error": "Email already exists"}, 400)
+        
+        if data["password"] != data["confirmPassword"]:
+            return make_response({"error": "Passwords do not match"}, 400)
+        
+        user = User(
+            full_name=data["fullName"],
+            email=data["email"]
+        )
+        user.set_password(data["password"])
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        return make_response({"msg": "User registered successfully", "user": user.to_dict()}, 201)
+
+api.add_resource(Register, "/register")
+
+# Login endpoint
+class Login(Resource):
+    def post(self):
+        data = request.get_json()
+        
+        user = User.query.filter_by(email=data["email"]).first()
+        
+        if not user or not user.check_password(data["password"]):
+            return make_response({"error": "Invalid email or password"}, 401)
+        
+        access_token = create_access_token(identity=user.id)
+        
+        return make_response({
+            "msg": "Login successful",
+            "access_token": access_token,
+            "user": user.to_dict()
+        }, 200)
+
+api.add_resource(Login, "/login")
 
 
 # class DebugSaccos(Resource):
