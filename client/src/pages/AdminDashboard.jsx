@@ -14,6 +14,8 @@ export default function AdminDashboard() {
   const [showRouteModal, setShowRouteModal] = useState(false);
   const [showMatatuModal, setShowMatatuModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
+  const [editingRoute, setEditingRoute] = useState(null);
+  const [editingMatatu, setEditingMatatu] = useState(null);
   
   // Form states
   const [saccoForm, setSaccoForm] = useState({ name: "", reg_number: "" });
@@ -69,20 +71,36 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/routes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ ...routeForm, sacco_id: sacco.id })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setRoutes([...routes, data.route]);
-        setShowRouteModal(false);
-        setRouteForm({ start: "", end: "" });
+      if (editingRoute) {
+        const response = await fetch(`${API_BASE_URL}/routes/${editingRoute.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(routeForm)
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setRoutes(routes.map(r => r.id === editingRoute.id ? data.route : r));
+          setEditingRoute(null);
+        }
+      } else {
+        const response = await fetch(`${API_BASE_URL}/routes`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ ...routeForm, sacco_id: sacco.id })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setRoutes([...routes, data.route]);
+        }
       }
+      setShowRouteModal(false);
+      setRouteForm({ start: "", end: "" });
     } catch (err) {
       console.error(err);
     }
@@ -92,20 +110,36 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${API_BASE_URL}/matatus`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ ...matatuForm, sacco_id: sacco.id })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setMatatus([...matatus, data.matatu]);
-        setShowMatatuModal(false);
-        setMatatuForm({ plate_number: "", capacity: "" });
+      if (editingMatatu) {
+        const response = await fetch(`${API_BASE_URL}/matatus/${editingMatatu.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(matatuForm)
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setMatatus(matatus.map(m => m.id === editingMatatu.id ? data.matatu : m));
+          setEditingMatatu(null);
+        }
+      } else {
+        const response = await fetch(`${API_BASE_URL}/matatus`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ ...matatuForm, sacco_id: sacco.id })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setMatatus([...matatus, data.matatu]);
+        }
       }
+      setShowMatatuModal(false);
+      setMatatuForm({ plate_number: "", capacity: "" });
     } catch (err) {
       console.error(err);
     }
@@ -126,6 +160,56 @@ export default function AdminDashboard() {
       if (response.ok) {
         setShowLinkModal(false);
         setLinkForm({ matatu_id: "", route_id: "", fare: "" });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteRoute = async (routeId) => {
+    if (!confirm("Delete this route?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/routes/${routeId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setRoutes(routes.filter(r => r.id !== routeId));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteMatatu = async (matatuId) => {
+    if (!confirm("Delete this matatu?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/matatus/${matatuId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setMatatus(matatus.filter(m => m.id !== matatuId));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteSacco = async () => {
+    if (!confirm("Delete your sacco? This will delete all matatus and routes.")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/saccos/${sacco.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setSacco(null);
+        setMatatus([]);
+        setRoutes([]);
       }
     } catch (err) {
       console.error(err);
@@ -223,8 +307,18 @@ export default function AdminDashboard() {
             </div>
             {sacco ? (
               <div className="bg-white p-8 rounded-2xl shadow-lg max-w-2xl">
-                <h2 className="text-2xl font-bold text-red-900 mb-4">{sacco.name}</h2>
-                <p className="text-gray-600"><strong>Registration Number:</strong> {sacco.reg_number}</p>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-red-900 mb-4">{sacco.name}</h2>
+                    <p className="text-gray-600"><strong>Registration Number:</strong> {sacco.reg_number}</p>
+                  </div>
+                  <button
+                    onClick={handleDeleteSacco}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                  >
+                    Delete Sacco
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg">
@@ -256,11 +350,29 @@ export default function AdminDashboard() {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {routes.map((route) => (
                   <div key={route.id} className="bg-white p-6 rounded-2xl shadow-lg">
-                    <h3 className="text-xl font-bold text-gray-800">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
                       <span className="text-red-900">{route.start}</span>
                       <span className="mx-2 text-gray-400">→</span>
                       <span className="text-red-900">{route.end}</span>
                     </h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingRoute(route);
+                          setRouteForm({ start: route.start, end: route.end });
+                          setShowRouteModal(true);
+                        }}
+                        className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteRoute(route.id)}
+                        className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -299,7 +411,25 @@ export default function AdminDashboard() {
                 {matatus.map((matatu) => (
                   <div key={matatu.id} className="bg-white p-6 rounded-2xl shadow-lg">
                     <h3 className="text-2xl font-bold text-red-900 mb-2">{matatu.plate_number}</h3>
-                    <p className="text-gray-600"><strong>Capacity:</strong> {matatu.capacity} passengers</p>
+                    <p className="text-gray-600 mb-4"><strong>Capacity:</strong> {matatu.capacity} passengers</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingMatatu(matatu);
+                          setMatatuForm({ plate_number: matatu.plate_number, capacity: matatu.capacity });
+                          setShowMatatuModal(true);
+                        }}
+                        className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMatatu(matatu.id)}
+                        className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -351,7 +481,7 @@ export default function AdminDashboard() {
       {showRouteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Route</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">{editingRoute ? "Edit Route" : "Add Route"}</h2>
             <form onSubmit={handleAddRoute} className="space-y-4">
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">Start Location</label>
@@ -374,11 +504,11 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setShowRouteModal(false)} className="flex-1 px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition font-semibold">
+                <button type="button" onClick={() => { setShowRouteModal(false); setEditingRoute(null); setRouteForm({ start: "", end: "" }); }} className="flex-1 px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition font-semibold">
                   Cancel
                 </button>
                 <button type="submit" className="flex-1 px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition font-semibold">
-                  Add
+                  {editingRoute ? "Update" : "Add"}
                 </button>
               </div>
             </form>
@@ -390,7 +520,7 @@ export default function AdminDashboard() {
       {showMatatuModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Matatu</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">{editingMatatu ? "Edit Matatu" : "Add Matatu"}</h2>
             <form onSubmit={handleAddMatatu} className="space-y-4">
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">Plate Number</label>
@@ -413,11 +543,11 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setShowMatatuModal(false)} className="flex-1 px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition font-semibold">
+                <button type="button" onClick={() => { setShowMatatuModal(false); setEditingMatatu(null); setMatatuForm({ plate_number: "", capacity: "" }); }} className="flex-1 px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition font-semibold">
                   Cancel
                 </button>
                 <button type="submit" className="flex-1 px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition font-semibold">
-                  Add
+                  {editingMatatu ? "Update" : "Add"}
                 </button>
               </div>
             </form>
