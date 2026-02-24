@@ -57,12 +57,20 @@ Update the frontend `config.js`:
 export const API_BASE_URL = "https://matatu-link-api.onrender.com";
 ```
 
-## Step 7: Initialize Database
-1. Go to Render dashboard → your web service
-2. Click "Shell" tab
-3. Run:
-```bash
-python seed.py
+## Step 7: Verify Super Admin Created
+The build script automatically:
+1. Creates all database tables
+2. Creates super admin account
+
+**Super Admin Credentials:**
+- Email: `superadmin@matatulink.com`
+- Password: `Admin@123`
+
+⚠️ **Change this password after first login!**
+
+Check deployment logs to confirm:
+```
+✅ Super admin created successfully!
 ```
 
 ## Step 8: Test Deployment
