@@ -41,35 +41,95 @@ export default function AdminDashboard() {
       });
   }, []);
 
-  const handleCreateSacco = (e) => {
+  const handleCreateSacco = async (e) => {
     e.preventDefault();
-    alert("Sacco created successfully!");
-    setSacco(saccoForm);
-    setShowSaccoModal(false);
-    setSaccoForm({ name: "", reg_number: "" });
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/saccos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...saccoForm, admin_id: user.id })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSacco(data.sacco);
+        setShowSaccoModal(false);
+        setSaccoForm({ name: "", reg_number: "" });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleAddRoute = (e) => {
+  const handleAddRoute = async (e) => {
     e.preventDefault();
-    alert("Route added successfully!");
-    setRoutes([...routes, { id: Date.now(), ...routeForm }]);
-    setShowRouteModal(false);
-    setRouteForm({ start: "", end: "" });
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/routes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...routeForm, sacco_id: sacco.id })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setRoutes([...routes, data.route]);
+        setShowRouteModal(false);
+        setRouteForm({ start: "", end: "" });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleAddMatatu = (e) => {
+  const handleAddMatatu = async (e) => {
     e.preventDefault();
-    alert("Matatu added successfully!");
-    setMatatus([...matatus, { id: Date.now(), ...matatuForm }]);
-    setShowMatatuModal(false);
-    setMatatuForm({ plate_number: "", capacity: "" });
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/matatus`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...matatuForm, sacco_id: sacco.id })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setMatatus([...matatus, data.matatu]);
+        setShowMatatuModal(false);
+        setMatatuForm({ plate_number: "", capacity: "" });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleLinkMatatuRoute = (e) => {
+  const handleLinkMatatuRoute = async (e) => {
     e.preventDefault();
-    alert("Matatu linked to route successfully!");
-    setShowLinkModal(false);
-    setLinkForm({ matatu_id: "", route_id: "", fare: "" });
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE_URL}/matatu_routes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(linkForm)
+      });
+      if (response.ok) {
+        setShowLinkModal(false);
+        setLinkForm({ matatu_id: "", route_id: "", fare: "" });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const menuItems = [

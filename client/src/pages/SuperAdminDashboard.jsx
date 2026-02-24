@@ -9,9 +9,14 @@ export default function SuperAdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     Promise.all([
-      fetch(`${API_BASE_URL}/saccos`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/users`).then(res => res.json())
+      fetch(`${API_BASE_URL}/saccos`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      }).then(res => res.json()),
+      fetch(`${API_BASE_URL}/users`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      }).then(res => res.json())
     ])
       .then(([saccosData, usersData]) => {
         setSaccos(saccosData);
@@ -26,9 +31,13 @@ export default function SuperAdminDashboard() {
 
   const upgradeToAdmin = async (userId) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ role: "admin" })
       });
       
@@ -108,7 +117,7 @@ export default function SuperAdminDashboard() {
                   <div>
                     <p className="text-gray-600 text-sm">Admins</p>
                     <p className="text-4xl font-bold text-red-900">
-                      {users.filter(u => u.role === 'admin').length}
+                      {users.filter(u => u.role === 'admin' && u.role !== 'super_admin').length}
                     </p>
                   </div>
                   <FaUsers className="text-5xl text-red-200" />
@@ -148,7 +157,7 @@ export default function SuperAdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => (
+                  {users.filter(u => u.role !== "super_admin").map((user) => (
                     <tr key={user.id} className="border-b hover:bg-gray-50">
                       <td className="px-6 py-4 font-semibold">{user.full_name}</td>
                       <td className="px-6 py-4 text-gray-600">{user.email}</td>

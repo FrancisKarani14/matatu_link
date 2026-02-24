@@ -26,13 +26,51 @@ api.add_resource(Welcome, "/")
 
 # All saccos endpoint
 class All_saccos(Resource):
+    @jwt_required()
     def get(self):
         saccos = [sacco.to_dict(rules=("-matatus", "-routes"))
                   for sacco in Sacco.query.all()]
         return make_response(jsonify(saccos), 200)
+    
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        new_sacco = Sacco(
+            name=data["name"],
+            reg_number=data["reg_number"],
+            admin_id=data.get("admin_id")
+        )
+        db.session.add(new_sacco)
+        db.session.commit()
+        return make_response({"msg": "Sacco created successfully", "sacco": new_sacco.to_dict()}, 201)
 
 
 api.add_resource(All_saccos, "/saccos")
+
+# Single sacco operations
+class Sacco_operations(Resource):
+    @jwt_required()
+    def get(self, sacco_id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        return make_response(jsonify(sacco.to_dict()), 200)
+    
+    @jwt_required()
+    def put(self, sacco_id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        data = request.get_json()
+        sacco.name = data.get("name", sacco.name)
+        sacco.reg_number = data.get("reg_number", sacco.reg_number)
+        db.session.commit()
+        return make_response({"msg": "Sacco updated successfully", "sacco": sacco.to_dict()}, 200)
+    
+    @jwt_required()
+    def delete(self, sacco_id):
+        sacco = Sacco.query.get_or_404(sacco_id)
+        db.session.delete(sacco)
+        db.session.commit()
+        return make_response({"msg": "Sacco deleted successfully"}, 200)
+
+api.add_resource(Sacco_operations, "/saccos/<int:sacco_id>")
 
 # all matatus in a sacco
 class All_matatus_in_sacco(Resource):
@@ -106,25 +144,92 @@ api.add_resource(
 
 # all matatus endpoint
 class All_matatus(Resource):
+    @jwt_required()
     def get(self):
         matatus = [matatu.to_dict(rules=("-sacco", "-matatu_routes"))
                    for matatu in Matatu.query.all()]
         return make_response(jsonify(matatus), 200)
+    
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        new_matatu = Matatu(
+            plate_number=data["plate_number"],
+            capacity=data["capacity"],
+            sacco_id=data["sacco_id"]
+        )
+        db.session.add(new_matatu)
+        db.session.commit()
+        return make_response({"msg": "Matatu created successfully", "matatu": new_matatu.to_dict()}, 201)
 
 
 api.add_resource(All_matatus, "/matatus")
 
+# Single matatu operations
+class Matatu_operations(Resource):
+    @jwt_required()
+    def put(self, matatu_id):
+        matatu = Matatu.query.get_or_404(matatu_id)
+        data = request.get_json()
+        matatu.plate_number = data.get("plate_number", matatu.plate_number)
+        matatu.capacity = data.get("capacity", matatu.capacity)
+        db.session.commit()
+        return make_response({"msg": "Matatu updated successfully", "matatu": matatu.to_dict()}, 200)
+    
+    @jwt_required()
+    def delete(self, matatu_id):
+        matatu = Matatu.query.get_or_404(matatu_id)
+        db.session.delete(matatu)
+        db.session.commit()
+        return make_response({"msg": "Matatu deleted successfully"}, 200)
+
+api.add_resource(Matatu_operations, "/matatus/<int:matatu_id>")
+
 # all routes endpoint
 class All_routes(Resource):
+    @jwt_required()
     def get(self):
         routes = [route.to_dict() for route in Route.query.all()]
         return make_response(jsonify(routes), 200)
+    
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        new_route = Route(
+            start=data["start"],
+            end=data["end"],
+            sacco_id=data["sacco_id"]
+        )
+        db.session.add(new_route)
+        db.session.commit()
+        return make_response({"msg": "Route created successfully", "route": new_route.to_dict()}, 201)
 
 
 api.add_resource(All_routes, "/routes")
 
+# Single route operations
+class Route_operations(Resource):
+    @jwt_required()
+    def put(self, route_id):
+        route = Route.query.get_or_404(route_id)
+        data = request.get_json()
+        route.start = data.get("start", route.start)
+        route.end = data.get("end", route.end)
+        db.session.commit()
+        return make_response({"msg": "Route updated successfully", "route": route.to_dict()}, 200)
+    
+    @jwt_required()
+    def delete(self, route_id):
+        route = Route.query.get_or_404(route_id)
+        db.session.delete(route)
+        db.session.commit()
+        return make_response({"msg": "Route deleted successfully"}, 200)
+
+api.add_resource(Route_operations, "/routes/<int:route_id>")
+
 # all matatu_routes endpoint
 class All_Matatu_Routes(Resource):
+    @jwt_required()
     def get(self):
         routes = [{
             "id": mr.id,
@@ -141,9 +246,32 @@ class All_Matatu_Routes(Resource):
             }
         } for mr in Matatu_route.query.all()]
         return make_response(jsonify(routes), 200)
+    
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        new_mr = Matatu_route(
+            matatu_id=data["matatu_id"],
+            route_id=data["route_id"],
+            fare=data["fare"]
+        )
+        db.session.add(new_mr)
+        db.session.commit()
+        return make_response({"msg": "Matatu route created successfully"}, 201)
 
 
 api.add_resource(All_Matatu_Routes, "/matatu_routes")
+
+# Single matatu_route operations
+class Matatu_route_operations(Resource):
+    @jwt_required()
+    def delete(self, mr_id):
+        mr = Matatu_route.query.get_or_404(mr_id)
+        db.session.delete(mr)
+        db.session.commit()
+        return make_response({"msg": "Matatu route deleted successfully"}, 200)
+
+api.add_resource(Matatu_route_operations, "/matatu_routes/<int:mr_id>")
 
 # Register endpoint
 class Register(Resource):
@@ -194,6 +322,7 @@ api.add_resource(Login, "/login")
 
 # All users endpoint
 class All_users(Resource):
+    @jwt_required()
     def get(self):
         users = [user.to_dict() for user in User.query.all()]
         return make_response(jsonify(users), 200)
@@ -202,6 +331,7 @@ api.add_resource(All_users, "/users")
 
 # Update user role endpoint
 class Update_user_role(Resource):
+    @jwt_required()
     def patch(self, user_id):
         user = User.query.get_or_404(user_id)
         data = request.get_json()
