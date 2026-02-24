@@ -1,17 +1,40 @@
 import React, { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline"
+import { API_BASE_URL } from "../config"
 
 const Login = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   })
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log("Login:", formData)
+    setError("")
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        localStorage.setItem("token", data.access_token)
+        localStorage.setItem("user", JSON.stringify(data.user))
+        navigate("/")
+      } else {
+        setError(data.error || "Login failed")
+      }
+    } catch (err) {
+      setError("Network error. Please try again.")
+    }
   }
 
   const handleChange = (e) => {
@@ -27,6 +50,8 @@ const Login = () => {
       <div className="absolute inset-0 bg-red-900/40" />
       <div className="relative z-10 max-w-md w-full bg-white rounded-2xl shadow-xl p-6">
         <h2 className="text-3xl font-bold text-red-900 text-center mb-6">Login</h2>
+        
+        {error && <div className="bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-4">{error}</div>}
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

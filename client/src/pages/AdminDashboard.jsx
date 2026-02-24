@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaBuilding, FaRoute, FaBus, FaChartBar, FaPlus } from "react-icons/fa";
-import API_BASE_URL from "../config";
+import { API_BASE_URL } from "../config";
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");

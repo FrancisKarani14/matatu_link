@@ -153,11 +153,8 @@ class Register(Resource):
         if User.query.filter_by(email=data["email"]).first():
             return make_response({"error": "Email already exists"}, 400)
         
-        if data["password"] != data["confirmPassword"]:
-            return make_response({"error": "Passwords do not match"}, 400)
-        
         user = User(
-            full_name=data["fullName"],
+            full_name=data["full_name"],
             email=data["email"]
         )
         user.set_password(data["password"])
@@ -165,7 +162,13 @@ class Register(Resource):
         db.session.add(user)
         db.session.commit()
         
-        return make_response({"msg": "User registered successfully", "user": user.to_dict()}, 201)
+        access_token = create_access_token(identity=user.id)
+        
+        return make_response({
+            "msg": "User registered successfully",
+            "access_token": access_token,
+            "user": user.to_dict()
+        }, 201)
 
 api.add_resource(Register, "/register")
 

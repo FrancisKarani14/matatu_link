@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaUsers, FaBuilding, FaChartBar, FaCog } from "react-icons/fa";
-import API_BASE_URL from "../config";
+import { API_BASE_URL } from "../config";
 
 export default function SuperAdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
