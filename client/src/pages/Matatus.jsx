@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import API_BASE_URL from "../config";
 
 export default function Matatus() {
   const { saccoId } = useParams();
@@ -18,10 +19,9 @@ export default function Matatus() {
   const [formData, setFormData] = useState({ plate_number: "", capacity: "" });
 
   useEffect(() => {
-    let url = "/matatus";
+    let url = `${API_BASE_URL}/matatus`;
     if (saccoId) {
-      url = `/saccos/${saccoId}/matatus`
-;
+      url = `${API_BASE_URL}/saccos/${saccoId}/matatus`;
     }
 
     setLoading(true);
@@ -134,7 +134,7 @@ export default function Matatus() {
               <div className="flex justify-between items-start">
                 <div>
                   {/* ✅ Plate number always visible */}
-                  <h2 className="text-lg font-semibold text-blue-600">
+                <h2 className="text-2xl font-bold text-red-900 mb-2">
                     {matatu.plate_number}
                   </h2>
                   <p className="text-sm text-gray-600">
@@ -149,7 +149,7 @@ export default function Matatus() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEditClick(matatu)}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="flex-1 px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition"
                   >
                     Edit
                   </button>

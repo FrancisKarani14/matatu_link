@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import API_BASE_URL from "../config";
 
 export default function Saccos() {
   const [saccos, setSaccos] = useState([]);
@@ -8,7 +9,7 @@ export default function Saccos() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("/saccos")
+    fetch(`${API_BASE_URL}/saccos`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch saccos");
@@ -35,51 +36,49 @@ export default function Saccos() {
   );
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Saccos</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-red-900 mb-6">Saccos</h1>
 
-      {/* ✅ Search bar */}
-      <input
-        type="text"
-        placeholder="Search by name or reg number..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full md:w-1/2 p-2 mb-6 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-      />
+        <input
+          type="text"
+          placeholder="Search by name or reg number..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full md:w-1/2 p-3 mb-8 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-900"
+        />
 
-      {filteredSaccos.length === 0 ? (
-        <p>No saccos found.</p>
-      ) : (
-        <div className="grid gap-4">
-          {filteredSaccos.map((sacco) => (
-            <div
-              key={sacco.id}
-              className="p-4 border rounded-lg shadow bg-white"
-            >
-              <h2 className="text-lg font-semibold">{sacco.name}</h2>
-              <p className="text-gray-600">Reg Number: {sacco.reg_number}</p>
+        {filteredSaccos.length === 0 ? (
+          <p className="text-gray-600">No saccos found.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredSaccos.map((sacco) => (
+              <div
+                key={sacco.id}
+                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition"
+              >
+                <h2 className="text-2xl font-bold text-red-900 mb-2">{sacco.name}</h2>
+                <p className="text-gray-600 mb-4">Reg: {sacco.reg_number}</p>
 
-              <div className="mt-4 flex gap-2 flex-wrap">
-                {/* ✅ View Matatus button */}
-                <button
-                  onClick={() => navigate(`/saccos/${sacco.id}/matatus`)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                >
-                  View Matatus
-                </button>
-
-                {/* ✅ View Routes button */}
-                <Link
-                  to={`/saccos/${sacco.id}/routes`}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition text-center no-underline inline-block"
-                >
-                  View Routes
-                </Link>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate(`/saccos/${sacco.id}/matatus`)}
+                    className="flex-1 px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition"
+                  >
+                    Matatus
+                  </button>
+                  <Link
+                    to={`/saccos/${sacco.id}/routes`}
+                    className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition text-center"
+                  >
+                    Routes
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

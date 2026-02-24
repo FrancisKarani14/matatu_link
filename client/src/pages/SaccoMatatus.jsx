@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import API_BASE_URL from "../config";
 
 export default function SaccoMatatus() {
   const { saccoId } = useParams();
@@ -11,7 +12,7 @@ export default function SaccoMatatus() {
   const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
-    fetch(`/saccos/${saccoId}/matatus`)
+    fetch(`${API_BASE_URL}/saccos/${saccoId}/matatus`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch matatus");
         return res.json();
@@ -44,27 +45,28 @@ export default function SaccoMatatus() {
   if (loading) return <p>Loading matatus...</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Matatus for Sacco #{saccoId}</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-red-900 mb-8">Matatus for Sacco #{saccoId}</h1>
 
-      {matatus.length === 0 ? (
-        <p>No matatus found for this sacco.</p>
-      ) : (
-        <div className="grid gap-4">
-          {matatus.map((matatu) => (
-            <div
-              key={matatu.id}
-              className="p-4 border rounded-lg shadow bg-white cursor-pointer hover:shadow-md"
-              onClick={() => setSelectedMatatu(matatu)}
-            >
-              <h2 className="text-lg font-semibold">
-                Plate: {matatu.plate_number}
-              </h2>
-              <p className="text-gray-600">Capacity: {matatu.capacity}</p>
-            </div>
-          ))}
-        </div>
-      )}
+        {matatus.length === 0 ? (
+          <p className="text-gray-600">No matatus found for this sacco.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {matatus.map((matatu) => (
+              <div
+                key={matatu.id}
+                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer"
+                onClick={() => setSelectedMatatu(matatu)}
+              >
+                <h2 className="text-2xl font-bold text-red-900 mb-2">
+                  {matatu.plate_number}
+                </h2>
+                <p className="text-gray-600">Capacity: {matatu.capacity} passengers</p>
+              </div>
+            ))}
+          </div>
+        )}
 
       {/* Payment Modal */}
       {selectedMatatu && (
