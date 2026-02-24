@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { FaBuilding, FaRoute, FaBus, FaChartBar, FaPlus } from "react-icons/fa";
+import { FaBuilding, FaRoute, FaBus, FaChartBar, FaPlus, FaSignOutAlt } from "react-icons/fa";
 import { API_BASE_URL } from "../config";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("overview");
   const [sacco, setSacco] = useState(null);
   const [matatus, setMatatus] = useState([]);
   const [routes, setRoutes] = useState([]);
+  const [matatuRoutes, setMatatuRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Modal states
@@ -24,17 +27,39 @@ export default function AdminDashboard() {
   const [linkForm, setLinkForm] = useState({ matatu_id: "", route_id: "", fare: "" });
 
   useEffect(() => {
-    // Fetch admin's sacco (assuming admin has sacco_id = 1)
-    const adminSaccoId = 1;
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const adminId = user.id;
+    
+    if (!adminId) {
+      setLoading(false);
+      return;
+    }
+
     Promise.all([
       fetch(`${API_BASE_URL}/saccos`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/saccos/${adminSaccoId}/matatus`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/saccos/${adminSaccoId}/routes`).then(res => res.json())
+      fetch(`${API_BASE_URL}/matatus`).then(res => res.json()),
+      fetch(`${API_BASE_URL}/routes`).then(res => res.json()),
+      fetch(`${API_BASE_URL}/matatu_routes`).then(res => res.json())
     ])
-      .then(([saccosData, matatusData, routesData]) => {
-        setSacco(saccosData[0]);
-        setMatatus(matatusData);
-        setRoutes(routesData);
+      .then(([saccosData, matatusData, routesData, matatuRoutesData]) => {
+        // Filter sacco by admin_id
+        const adminSacco = saccosData.find(s => s.admin_id === adminId);
+        setSacco(adminSacco || null);
+        
+        if (adminSacco) {
+          // Filter matatus by sacco_id
+          setMatatus(matatusData.filter(m => m.sacco_id === adminSacco.id));
+          // Filter routes by sacco_id
+          setRoutes(routesData.filter(r => r.sacco_id === adminSacco.id));
+          // Filter matatu routes by matatus that belong to this sacco
+          const saccoMatatuIds = matatusData.filter(m => m.sacco_id === adminSacco.id).map(m => m.id);
+          setMatatuRoutes(matatuRoutesData.filter(mr => saccoMatatuIds.includes(mr.matatu.id)));
+        } else {
+          setMatatus([]);
+          setRoutes([]);
+          setMatatuRoutes([]);
+        }
+        
         setLoading(false);
       })
       .catch(err => {
@@ -158,6 +183,10 @@ export default function AdminDashboard() {
         body: JSON.stringify(linkForm)
       });
       if (response.ok) {
+        // Refresh matatu routes
+        const mrData = await fetch(`${API_BASE_URL}/matatu_routes`).then(res => res.json());
+        const saccoMatatuIds = matatus.map(m => m.id);
+        setMatatuRoutes(mrData.filter(mr => saccoMatatuIds.includes(mr.matatu.id)));
         setShowLinkModal(false);
         setLinkForm({ matatu_id: "", route_id: "", fare: "" });
       }
@@ -220,7 +249,8 @@ export default function AdminDashboard() {
     { id: "overview", label: "Overview", icon: FaChartBar },
     { id: "sacco", label: "My Sacco", icon: FaBuilding },
     { id: "routes", label: "Routes", icon: FaRoute },
-    { id: "matatus", label: "Matatus", icon: FaBus }
+    { id: "matatus", label: "Matatus", icon: FaBus },
+    { id: "matatu-routes", label: "Matatu Routes", icon: FaRoute }
   ];
 
   if (loading) return <div className="p-6">Loading...</div>;
@@ -248,8 +278,21 @@ export default function AdminDashboard() {
           ))}
         </nav>
         <div className="p-4 border-t border-red-800">
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              navigate("/login");
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-800 transition"
+          >
+            <FaSignOutAlt className="text-xl" />
+            <span className="font-semibold">Logout</span>
+          </button>
+        </div>
+        <div className="p-4 border-t border-red-800">
           <p className="text-red-200 text-sm">Logged in as</p>
-          <p className="font-semibold">admin@matatulink.com</p>
+          <p className="font-semibold">{JSON.parse(localStorage.getItem("user") || "{}").email || "admin@matatulink.com"}</p>
         </div>
       </aside>
 
@@ -436,11 +479,46 @@ export default function AdminDashboard() {
             )}
           </div>
         )}
+
+        {/* Matatu Routes */}
+        {activeSection === "matatu-routes" && (
+          <div>
+            <h1 className="text-4xl font-bold text-gray-800 mb-8">Matatu Routes</h1>
+            {matatuRoutes.length === 0 ? (
+              <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg">
+                No matatu routes found. Link matatus to routes to see them here.
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {matatuRoutes.map((mr) => (
+                  <div key={mr.id} className="bg-white p-6 rounded-2xl shadow-lg">
+                    <div className="mb-4">
+                      <p className="text-2xl font-bold text-gray-800">
+                        <span className="text-red-900">{mr.route.start}</span>
+                        <span className="mx-2 text-gray-400">→</span>
+                        <span className="text-red-900">{mr.route.end}</span>
+                      </p>
+                    </div>
+                    <p className="text-gray-600 mb-2">
+                      <strong>Matatu:</strong> {mr.matatu.plate_number}
+                    </p>
+                    <p className="text-gray-600 mb-2">
+                      <strong>Capacity:</strong> {mr.matatu.capacity} seater
+                    </p>
+                    <p className="text-lg font-bold text-red-900">
+                      KES {mr.fare}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Create Sacco Modal */}
       {showSaccoModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-[60]">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Create Sacco</h2>
             <form onSubmit={handleCreateSacco} className="space-y-4">
@@ -479,7 +557,7 @@ export default function AdminDashboard() {
 
       {/* Add Route Modal */}
       {showRouteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-[60]">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">{editingRoute ? "Edit Route" : "Add Route"}</h2>
             <form onSubmit={handleAddRoute} className="space-y-4">
@@ -518,7 +596,7 @@ export default function AdminDashboard() {
 
       {/* Add Matatu Modal */}
       {showMatatuModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-[60]">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">{editingMatatu ? "Edit Matatu" : "Add Matatu"}</h2>
             <form onSubmit={handleAddMatatu} className="space-y-4">
@@ -557,7 +635,7 @@ export default function AdminDashboard() {
 
       {/* Link Matatu to Route Modal */}
       {showLinkModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-[60]">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Link Matatu to Route</h2>
             <form onSubmit={handleLinkMatatuRoute} className="space-y-4">

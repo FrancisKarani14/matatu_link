@@ -132,6 +132,84 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Companies We Work With */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 py-16 overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+          style={{ backgroundImage: "url('/images/pt.png')" }}
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 max-w-7xl mx-auto text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Companies We Work With
+          </h2>
+          <p className="text-white text-lg">
+            Trusted by leading transport companies across Kenya
+          </p>
+        </div>
+        
+        <div className="relative z-10 w-full space-y-8">
+          {/* First Row */}
+          <div className="flex animate-scroll gap-16">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="flex gap-16 shrink-0">
+                <div className="flex flex-col items-center justify-center w-48 h-32 bg-white rounded-xl shadow-lg">
+                  <p className="text-2xl font-bold text-red-900">City Hoppa</p>
+                </div>
+                <div className="flex flex-col items-center justify-center w-48 h-32 bg-white rounded-xl shadow-lg">
+                  <p className="text-2xl font-bold text-red-900">Citi Shuttle</p>
+                </div>
+                <div className="flex flex-col items-center justify-center w-48 h-32 bg-white rounded-xl shadow-lg">
+                  <p className="text-2xl font-bold text-red-900">KBS</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Second Row */}
+          <div className="flex animate-scroll-reverse gap-16">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="flex gap-16 shrink-0">
+                <div className="flex flex-col items-center justify-center w-48 h-32 bg-white rounded-xl shadow-lg">
+                  <p className="text-2xl font-bold text-red-900">Double M</p>
+                </div>
+                <div className="flex flex-col items-center justify-center w-48 h-32 bg-white rounded-xl shadow-lg">
+                  <p className="text-2xl font-bold text-red-900">Embassava</p>
+                </div>
+                <div className="flex flex-col items-center justify-center w-48 h-32 bg-white rounded-xl shadow-lg">
+                  <p className="text-2xl font-bold text-red-900">Super Metro</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes scroll {
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-50%);
+            }
+          }
+          @keyframes scroll-reverse {
+            0% {
+              transform: translateX(-50%);
+            }
+            100% {
+              transform: translateX(0);
+            }
+          }
+          .animate-scroll {
+            animation: scroll 20s linear infinite;
+          }
+          .animate-scroll-reverse {
+            animation: scroll-reverse 20s linear infinite;
+          }
+        `}</style>
+      </section>
+
       {/* Footer */}
       <footer className="bg-red-900/20 text-gray-800 py-12">
         <div className="max-w-7xl mx-auto px-6">
