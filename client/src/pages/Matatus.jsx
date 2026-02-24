@@ -8,16 +8,6 @@ export default function Matatus() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal states
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-
-  const [selectedMatatu, setSelectedMatatu] = useState(null);
-
-  // Form state for editing & adding
-  const [formData, setFormData] = useState({ plate_number: "", capacity: "" });
-
   useEffect(() => {
     let url = `${API_BASE_URL}/matatus`;
     if (saccoId) {
@@ -43,56 +33,10 @@ export default function Matatus() {
       });
   }, [saccoId]);
 
-  // Handle edit button click
-  const handleEditClick = (matatu) => {
-    setSelectedMatatu(matatu);
-    setFormData({ plate_number: matatu.plate_number, capacity: matatu.capacity });
-    setShowEditModal(true);
-  };
-
-  // Handle delete button click
-  const handleDeleteClick = (matatu) => {
-    setSelectedMatatu(matatu);
-    setShowDeleteModal(true);
-  };
-
-  // Save edit
-  const handleSaveEdit = () => {
-    setMatatus((prev) =>
-      prev.map((m) =>
-        m.id === selectedMatatu.id
-          ? { ...m, plate_number: formData.plate_number, capacity: formData.capacity }
-          : m
-      )
-    );
-    setShowEditModal(false);
-    setSelectedMatatu(null);
-  };
-
-  // Confirm delete
-  const handleConfirmDelete = () => {
-    setMatatus((prev) => prev.filter((m) => m.id !== selectedMatatu.id));
-    setShowDeleteModal(false);
-    setSelectedMatatu(null);
-  };
-
-  // Save add
-  const handleSaveAdd = () => {
-    const newMatatu = {
-      id: Date.now(), // temporary id for frontend
-      plate_number: formData.plate_number,
-      capacity: formData.capacity,
-    };
-
-    setMatatus((prev) => [...prev, newMatatu]);
-    setShowAddModal(false);
-    setFormData({ plate_number: "", capacity: "" });
-  };
-
   if (loading) {
     return (
       <div className="p-6 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-900"></div>
         <span className="ml-2">Loading matatus...</span>
       </div>
     );
@@ -107,183 +51,39 @@ export default function Matatus() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-red-900 mb-8">
           {saccoId ? `Matatus in Sacco #${saccoId}` : "All Matatus"}
         </h1>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          + Add Matatu
-        </button>
-      </div>
 
-      {matatus.length === 0 ? (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          No matatus available{saccoId ? " for this sacco" : ""}.
-        </div>
-      ) : (
-        <ul className="space-y-3">
-          {matatus.map((matatu) => (
-            <li
-              key={matatu.id}
-              className="p-4 border rounded-lg shadow bg-white hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  {/* ✅ Plate number always visible */}
+        {matatus.length === 0 ? (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg">
+            No matatus available{saccoId ? " for this sacco" : ""}.
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {matatus.map((matatu) => (
+              <div
+                key={matatu.id}
+                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition"
+              >
                 <h2 className="text-2xl font-bold text-red-900 mb-2">
-                    {matatu.plate_number}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    <strong>Capacity:</strong> {matatu.capacity} passengers
+                  {matatu.plate_number}
+                </h2>
+                <p className="text-gray-600 mb-1">
+                  <strong>Capacity:</strong> {matatu.capacity} passengers
+                </p>
+                {matatu.year && (
+                  <p className="text-gray-600">
+                    <strong>Year:</strong> {matatu.year}
                   </p>
-                  {matatu.year && (
-                    <p className="text-sm text-gray-600">
-                      <strong>Year:</strong> {matatu.year}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEditClick(matatu)}
-                    className="flex-1 px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(matatu)}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
+                )}
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* ✏️ Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">
-              Edit Matatu: {selectedMatatu?.plate_number}
-            </h2>
-            <label className="block mb-2">
-              Plate Number
-              <input
-                type="text"
-                value={formData.plate_number}
-                onChange={(e) =>
-                  setFormData({ ...formData, plate_number: e.target.value })
-                }
-                className="w-full border p-2 rounded mt-1"
-              />
-            </label>
-            <label className="block mb-4">
-              Capacity
-              <input
-                type="number"
-                value={formData.capacity}
-                onChange={(e) =>
-                  setFormData({ ...formData, capacity: e.target.value })
-                }
-                className="w-full border p-2 rounded mt-1"
-              />
-            </label>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Save
-              </button>
-            </div>
+            ))}
           </div>
-        </div>
-      )}
-
-      {/*  Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
-            <p>
-              Are you sure you want to delete{" "}
-              <strong>{selectedMatatu?.plate_number}</strong>?
-            </p>
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ➕ Add Matatu Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Add New Matatu</h2>
-            <label className="block mb-2">
-              Plate Number
-              <input
-                type="text"
-                value={formData.plate_number}
-                onChange={(e) =>
-                  setFormData({ ...formData, plate_number: e.target.value })
-                }
-                className="w-full border p-2 rounded mt-1"
-              />
-            </label>
-            <label className="block mb-4">
-              Capacity
-              <input
-                type="number"
-                value={formData.capacity}
-                onChange={(e) =>
-                  setFormData({ ...formData, capacity: e.target.value })
-                }
-                className="w-full border p-2 rounded mt-1"
-              />
-            </label>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveAdd}
-                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Add
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

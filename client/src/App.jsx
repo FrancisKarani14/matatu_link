@@ -8,6 +8,8 @@ import SaccoMatatus from "./pages/SaccoMatatus";
 import SaccoRoutes from "./pages/SaccoRoutes";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -20,6 +22,10 @@ function App() {
         {/* Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
+        {/* Dashboards */}
+        <Route path="/super-admin" element={<SuperAdminDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
 
         {/* Saccos */}
         <Route path="/saccos" element={<Saccos />} />

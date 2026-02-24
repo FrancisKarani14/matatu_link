@@ -67,6 +67,7 @@ export default function SaccoMatatus() {
             ))}
           </div>
         )}
+      </div>
 
       {/* Payment Modal */}
       {selectedMatatu && (
