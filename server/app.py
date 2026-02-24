@@ -192,6 +192,25 @@ class Login(Resource):
 
 api.add_resource(Login, "/login")
 
+# All users endpoint
+class All_users(Resource):
+    def get(self):
+        users = [user.to_dict() for user in User.query.all()]
+        return make_response(jsonify(users), 200)
+
+api.add_resource(All_users, "/users")
+
+# Update user role endpoint
+class Update_user_role(Resource):
+    def patch(self, user_id):
+        user = User.query.get_or_404(user_id)
+        data = request.get_json()
+        user.role = data.get("role", user.role)
+        db.session.commit()
+        return make_response({"msg": "User role updated", "user": user.to_dict()}, 200)
+
+api.add_resource(Update_user_role, "/users/<int:user_id>")
+
 
 # class DebugSaccos(Resource):
 #     def get(self):

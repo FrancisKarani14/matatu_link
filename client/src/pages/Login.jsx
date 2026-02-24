@@ -28,7 +28,14 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem("token", data.access_token)
         localStorage.setItem("user", JSON.stringify(data.user))
-        navigate("/")
+        
+        if (data.user.role === "super_admin") {
+          navigate("/super-admin")
+        } else if (data.user.role === "admin") {
+          navigate("/admin")
+        } else {
+          navigate("/")
+        }
       } else {
         setError(data.error || "Login failed")
       }

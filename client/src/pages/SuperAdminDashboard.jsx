@@ -11,11 +11,7 @@ export default function SuperAdminDashboard() {
   useEffect(() => {
     Promise.all([
       fetch(`${API_BASE_URL}/saccos`).then(res => res.json()),
-      Promise.resolve([
-        { id: 1, name: "John Doe", email: "john@example.com", role: "user" },
-        { id: 2, name: "Jane Smith", email: "jane@example.com", role: "admin" },
-        { id: 3, name: "Bob Wilson", email: "bob@example.com", role: "user" }
-      ])
+      fetch(`${API_BASE_URL}/users`).then(res => res.json())
     ])
       .then(([saccosData, usersData]) => {
         setSaccos(saccosData);
@@ -28,8 +24,21 @@ export default function SuperAdminDashboard() {
       });
   }, []);
 
-  const upgradeToAdmin = (userId) => {
-    setUsers(users.map(u => u.id === userId ? { ...u, role: "admin" } : u));
+  const upgradeToAdmin = async (userId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: "admin" })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(users.map(u => u.id === userId ? data.user : u));
+      }
+    } catch (err) {
+      console.error("Failed to upgrade user:", err);
+    }
   };
 
   const menuItems = [
@@ -141,7 +150,7 @@ export default function SuperAdminDashboard() {
                 <tbody>
                   {users.map((user) => (
                     <tr key={user.id} className="border-b hover:bg-gray-50">
-                      <td className="px-6 py-4 font-semibold">{user.name}</td>
+                      <td className="px-6 py-4 font-semibold">{user.full_name}</td>
                       <td className="px-6 py-4 text-gray-600">{user.email}</td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
