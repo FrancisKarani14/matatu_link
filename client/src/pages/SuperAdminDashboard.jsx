@@ -1,30 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { FaUsers, FaBuilding, FaChartBar, FaCog } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaUsers, FaBuilding, FaChartBar, FaCog, FaSignOutAlt } from "react-icons/fa";
 import { API_BASE_URL } from "../config";
+import { useNavigate } from "react-router-dom";
 
 export default function SuperAdminDashboard() {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("overview");
   const [saccos, setSaccos] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    console.log("Token:", token);
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    
     Promise.all([
       fetch(`${API_BASE_URL}/saccos`, {
         headers: { "Authorization": `Bearer ${token}` }
-      }).then(res => res.json()),
+      }),
       fetch(`${API_BASE_URL}/users`, {
         headers: { "Authorization": `Bearer ${token}` }
-      }).then(res => res.json())
+      })
     ])
-      .then(([saccosData, usersData]) => {
-        setSaccos(saccosData);
-        setUsers(usersData);
+      .then(async ([saccosRes, usersRes]) => {
+        console.log("Saccos response:", saccosRes.status);
+        console.log("Users response:", usersRes.status);
+        const saccosData = saccosRes.ok ? await saccosRes.json() : [];
+        const usersData = usersRes.ok ? await usersRes.json() : [];
+        console.log("Users data:", usersData);
+        setSaccos(Array.isArray(saccosData) ? saccosData : []);
+        setUsers(Array.isArray(usersData) ? usersData : []);
         setLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        console.error("Fetch error:", err);
+        setSaccos([]);
+        setUsers([]);
         setLoading(false);
       });
   }, []);
@@ -44,10 +61,17 @@ export default function SuperAdminDashboard() {
       if (response.ok) {
         const data = await response.json();
         setUsers(users.map(u => u.id === userId ? data.user : u));
+        setShowUpgradeModal(false);
+        setSelectedUser(null);
       }
     } catch (err) {
       console.error("Failed to upgrade user:", err);
     }
+  };
+
+  const handleUpgradeClick = (user) => {
+    setSelectedUser(user);
+    setShowUpgradeModal(true);
   };
 
   const menuItems = [
@@ -82,8 +106,21 @@ export default function SuperAdminDashboard() {
           ))}
         </nav>
         <div className="p-4 border-t border-red-800">
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              navigate("/login");
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-800 transition"
+          >
+            <FaSignOutAlt className="text-xl" />
+            <span className="font-semibold">Logout</span>
+          </button>
+        </div>
+        <div className="p-4 border-t border-red-800">
           <p className="text-red-200 text-sm">Logged in as</p>
-          <p className="font-semibold">admin@matatulink.com</p>
+          <p className="font-semibold">{JSON.parse(localStorage.getItem("user") || "{}").email || "admin@matatulink.com"}</p>
         </div>
       </aside>
 
@@ -171,7 +208,7 @@ export default function SuperAdminDashboard() {
                       <td className="px-6 py-4">
                         {user.role !== 'admin' && (
                           <button
-                            onClick={() => upgradeToAdmin(user.id)}
+                            onClick={() => handleUpgradeClick(user)}
                             className="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition text-sm font-semibold"
                           >
                             Upgrade to Admin
@@ -197,6 +234,44 @@ export default function SuperAdminDashboard() {
           </div>
         )}
       </main>
+
+      {/* Upgrade Confirmation Modal */}
+      {showUpgradeModal && selectedUser && (
+        <div className="fixed inset-0 flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Confirm Upgrade</h2>
+            <p className="text-gray-700 mb-4">
+              You are about to upgrade <strong>{selectedUser.full_name}</strong> to Admin.
+            </p>
+            <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-6">
+              <p className="text-yellow-800 font-semibold mb-2">Consequences:</p>
+              <ul className="list-disc list-inside text-yellow-700 text-sm space-y-1">
+                <li>User will gain access to Admin Dashboard</li>
+                <li>User can create and manage their own Sacco</li>
+                <li>User can add/edit/delete Matatus and Routes</li>
+                <li>This action cannot be easily reversed</li>
+              </ul>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowUpgradeModal(false);
+                  setSelectedUser(null);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => upgradeToAdmin(selectedUser.id)}
+                className="flex-1 px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition font-semibold"
+              >
+                Upgrade
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

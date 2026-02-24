@@ -1,9 +1,20 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
 
 const Navbar = () => {
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    const userData = localStorage.getItem("user")
+    if (token && userData) {
+      setUser(JSON.parse(userData))
+    } else {
+      setUser(null)
+    }
+  }, [location])
 
   const isActive = (path) =>
     location.pathname === path ? "text-red-900 font-semibold" : "text-gray-700"
@@ -18,7 +29,7 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex space-x-6 items-center">
           <Link to="/" className={isActive("/")}>
             Home
           </Link>
@@ -28,10 +39,17 @@ const Navbar = () => {
           <Link to="/matatus" className={isActive("/matatus")}>
             Matatus
           </Link>
-          
           <Link to="/routes" className={isActive("/routes")}>
             Routes
           </Link>
+          {user && (
+            <Link 
+              to={user.role === "super_admin" ? "/super-admin" : user.role === "admin" ? "/admin" : "/"}
+              className="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition font-semibold"
+            >
+              Dashboard
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -75,6 +93,15 @@ const Navbar = () => {
             >
               Routes
             </Link>
+            {user && (
+              <Link
+                to={user.role === "super_admin" ? "/super-admin" : user.role === "admin" ? "/admin" : "/"}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-950 transition font-semibold text-center"
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
         </div>
       )}
