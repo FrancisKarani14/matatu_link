@@ -26,7 +26,6 @@ api.add_resource(Welcome, "/")
 
 # All saccos endpoint
 class All_saccos(Resource):
-    @jwt_required()
     def get(self):
         saccos = [sacco.to_dict(rules=("-matatus", "-routes"))
                   for sacco in Sacco.query.all()]
@@ -49,7 +48,6 @@ api.add_resource(All_saccos, "/saccos")
 
 # Single sacco operations
 class Sacco_operations(Resource):
-    @jwt_required()
     def get(self, sacco_id):
         sacco = Sacco.query.get_or_404(sacco_id)
         return make_response(jsonify(sacco.to_dict()), 200)
@@ -144,7 +142,6 @@ api.add_resource(
 
 # all matatus endpoint
 class All_matatus(Resource):
-    @jwt_required()
     def get(self):
         matatus = [matatu.to_dict(rules=("-sacco", "-matatu_routes"))
                    for matatu in Matatu.query.all()]
@@ -187,7 +184,6 @@ api.add_resource(Matatu_operations, "/matatus/<int:matatu_id>")
 
 # all routes endpoint
 class All_routes(Resource):
-    @jwt_required()
     def get(self):
         routes = [route.to_dict() for route in Route.query.all()]
         return make_response(jsonify(routes), 200)
@@ -229,7 +225,6 @@ api.add_resource(Route_operations, "/routes/<int:route_id>")
 
 # all matatu_routes endpoint
 class All_Matatu_Routes(Resource):
-    @jwt_required()
     def get(self):
         routes = [{
             "id": mr.id,
