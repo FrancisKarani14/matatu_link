@@ -1,6 +1,7 @@
 // src/pages/Home.jsx
 import React from "react"
 import { Link } from "react-router-dom"
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa"
 
 const Home = () => {
   return (
@@ -132,29 +133,73 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-red-900/20 text-gray-800 py-8">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-wrap justify-center gap-6 mb-6">
-            <Link to="/" className="hover:text-red-900 font-semibold transition">
-              Home
-            </Link>
-            <Link to="/saccos" className="hover:text-red-900 font-semibold transition">
-              Saccos
-            </Link>
-            <Link to="/matatus" className="hover:text-red-900 font-semibold transition">
-              Matatus
-            </Link>
-            <Link to="/routes" className="hover:text-red-900 font-semibold transition">
-              Routes
-            </Link>
-            <Link to="/login" className="hover:text-red-900 font-semibold transition">
-              Login
-            </Link>
-            <Link to="/signup" className="hover:text-red-900 font-semibold transition">
-              Sign Up
-            </Link>
+      <footer className="bg-red-900/20 text-gray-800 py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            {/* About Us */}
+            <div>
+              <h3 className="text-xl font-bold text-red-900 mb-4">About Matatu Link</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Your trusted platform for navigating Kenya's matatu transport system. 
+                Connecting commuters with reliable information about saccos, routes, and fares.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-xl font-bold text-red-900 mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link to="/" className="text-gray-600 hover:text-red-900 transition">Home</Link></li>
+                <li><Link to="/saccos" className="text-gray-600 hover:text-red-900 transition">Saccos</Link></li>
+                <li><Link to="/matatus" className="text-gray-600 hover:text-red-900 transition">Matatus</Link></li>
+                <li><Link to="/routes" className="text-gray-600 hover:text-red-900 transition">Routes</Link></li>
+                <li><Link to="/login" className="text-gray-600 hover:text-red-900 transition">Login</Link></li>
+                <li><Link to="/signup" className="text-gray-600 hover:text-red-900 transition">Sign Up</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-xl font-bold text-red-900 mb-4">Contact Us</h3>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-2 text-gray-600">
+                  <FaEnvelope className="text-red-900" />
+                  <a href="mailto:info@matatulink.com" className="hover:text-red-900 transition">info@matatulink.com</a>
+                </li>
+                <li className="flex items-center gap-2 text-gray-600">
+                  <FaPhone className="text-red-900" />
+                  <span>+254 700 123 456</span>
+                </li>
+                <li className="flex items-center gap-2 text-gray-600">
+                  <FaMapMarkerAlt className="text-red-900" />
+                  <span>Nairobi, Kenya</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Social Media */}
+            <div>
+              <h3 className="text-xl font-bold text-red-900 mb-4">Follow Us</h3>
+              <div className="flex gap-4">
+                <a href="#" className="text-2xl text-gray-600 hover:text-red-900 transition" aria-label="Facebook">
+                  <FaFacebook />
+                </a>
+                <a href="#" className="text-2xl text-gray-600 hover:text-red-900 transition" aria-label="Twitter">
+                  <FaTwitter />
+                </a>
+                <a href="#" className="text-2xl text-gray-600 hover:text-red-900 transition" aria-label="Instagram">
+                  <FaInstagram />
+                </a>
+                <a href="#" className="text-2xl text-gray-600 hover:text-red-900 transition" aria-label="LinkedIn">
+                  <FaLinkedin />
+                </a>
+              </div>
+            </div>
           </div>
-          <p className="text-center text-gray-600">© {new Date().getFullYear()} Matatu Link. All rights reserved.</p>
+
+          <div className="border-t border-gray-300 pt-6">
+            <p className="text-center text-gray-600">© {new Date().getFullYear()} Matatu Link. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
