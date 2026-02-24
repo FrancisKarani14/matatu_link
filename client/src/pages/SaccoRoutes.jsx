@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 
 export default function SaccoRoutes() {
   const { saccoId } = useParams();
@@ -11,7 +12,7 @@ export default function SaccoRoutes() {
   const [receipt, setReceipt] = useState(null);
 
   useEffect(() => {
-    fetch(`/saccos/${saccoId}/routes`)
+    fetch(`${API_BASE_URL}/saccos/${saccoId}/routes`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch routes");
         return res.json();
@@ -44,26 +45,30 @@ export default function SaccoRoutes() {
   if (loading) return <p>Loading routes...</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Routes for Sacco #{saccoId}</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-red-900 mb-8">Routes for Sacco #{saccoId}</h1>
 
-      {routes.length === 0 ? (
-        <p>No routes found for this sacco.</p>
-      ) : (
-        <div className="grid gap-4">
-          {routes.map((route) => (
-            <div
-              key={route.id}
-              className="p-4 border rounded-lg shadow bg-white cursor-pointer hover:shadow-md"
-              onClick={() => setSelectedRoute(route)}
-            >
-              <h2 className="text-lg font-semibold">
-                {route.start} → {route.end}
-              </h2>
-            </div>
-          ))}
-        </div>
-      )}
+        {routes.length === 0 ? (
+          <p className="text-gray-600">No routes found for this sacco.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {routes.map((route) => (
+              <div
+                key={route.id}
+                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer"
+                onClick={() => setSelectedRoute(route)}
+              >
+                <h2 className="text-2xl font-bold text-gray-800">
+                  <span className="text-red-900">{route.start}</span>
+                  <span className="mx-2 text-gray-400">→</span>
+                  <span className="text-red-900">{route.end}</span>
+                </h2>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Payment Modal */}
       {selectedRoute && (

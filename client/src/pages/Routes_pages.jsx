@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from "../config";
 
 export default function Routes_pages() {
   const [matatuRoutes, setMatatuRoutes] = useState([]);
@@ -6,7 +7,7 @@ export default function Routes_pages() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const url = "/matatu_routes";
+    const url = `${API_BASE_URL}/matatu_routes`;
     console.log("Fetching from:", url);
 
     setLoading(true);
@@ -54,41 +55,42 @@ export default function Routes_pages() {
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Matatu Routes</h2>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl font-bold text-red-900 mb-8">Matatu Routes</h2>
 
-      {matatuRoutes.length === 0 ? (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          <p>No matatu routes available.</p>
-        </div>
-      ) : (
-        <ul className="space-y-3">
-          {matatuRoutes.map((mr) => (
-            <li
-              key={mr.id}
-              className="p-4 bg-white shadow rounded-lg border hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-lg font-medium text-gray-800">
-                    <span className="text-blue-600">{mr.route.start}</span>
+        {matatuRoutes.length === 0 ? (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg">
+            <p>No matatu routes available.</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {matatuRoutes.map((mr) => (
+              <div
+                key={mr.id}
+                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition"
+              >
+                <div className="mb-4">
+                  <p className="text-2xl font-bold text-gray-800">
+                    <span className="text-red-900">{mr.route.start}</span>
                     <span className="mx-2 text-gray-400">→</span>
-                    <span className="text-green-600">{mr.route.end}</span>
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Matatu: <span className="font-semibold">{mr.matatu.plate_number}</span>  
-                    ({mr.matatu.capacity} seater)
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Fare: <span className="font-semibold">KES {mr.fare}</span>
+                    <span className="text-red-900">{mr.route.end}</span>
                   </p>
                 </div>
-                <div className="text-sm text-gray-400">#{mr.id}</div>
+                <p className="text-gray-600 mb-2">
+                  <strong>Matatu:</strong> {mr.matatu.plate_number}
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <strong>Capacity:</strong> {mr.matatu.capacity} seater
+                </p>
+                <p className="text-lg font-bold text-red-900">
+                  KES {mr.fare}
+                </p>
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

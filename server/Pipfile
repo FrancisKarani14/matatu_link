@@ -11,11 +11,9 @@ sqlalchemy-serializer = "*"
 flask-migrate = "*"
 flask-restful = "*"
 flask-cors = "*"
-psycopg2-binary = "*"
-python-dotenv = "*"
-gunicorn = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.11.7"
+python_version = "3.13.0"

@@ -1,11 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Saccos from "./pages/Saccos";
 import Matatus from "./pages/Matatus";
 import Routes_pages from "./pages/Routes_pages";
 import SaccoMatatus from "./pages/SaccoMatatus";
 import SaccoRoutes from "./pages/SaccoRoutes";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -14,6 +19,22 @@ function App() {
       <Routes>
         {/* Home */}
         <Route path="/" element={<Home />} />
+
+        {/* Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Dashboards */}
+        <Route path="/super-admin" element={
+          <ProtectedRoute allowedRoles={["super_admin"]}>
+            <SuperAdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
 
         {/* Saccos */}
         <Route path="/saccos" element={<Saccos />} />
